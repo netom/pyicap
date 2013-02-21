@@ -1,23 +1,7 @@
 """ICAP server base class.
 
-Note: the class in this module doesn't implement any ICAP request
-
-Contents:
-
-- BaseICAPRequestHandler: ICAP request handler base class
-- test: test function
+See RFC3507
 """
-
-
-# See also:
-#
-#
-# Network Working Group                                           J. Elson
-# Request for Comments: 3507                                      A. Cerpa
-# Category: Informational                                             UCLA
-#                                                              April 2003
-#
-# URL: http://www.faqs.org/rfcs/rfc3507.html
 
 __version__ = "1.0"
 
@@ -25,14 +9,10 @@ __all__ = ["ICAPServer", "BaseICAPRequestHandler"]
 
 import sys
 import time
-import socket # For gethostbyaddr()
-from warnings import filterwarnings, catch_warnings
-with catch_warnings():
-    if sys.py3kwarning:
-        filterwarnings("ignore", ".*mimetools has been removed",
-                        DeprecationWarning)
-    import mimetools
+import socket
 import SocketServer
+
+from email.parser import FeedParser
 
 # Default error message template
 DEFAULT_ERROR_MESSAGE = """\
@@ -52,9 +32,10 @@ DEFAULT_ERROR_CONTENT_TYPE = "text/html"
 def _quote_html(html):
     return html.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
+
 class ICAPServer(SocketServer.TCPServer):
 
-    allow_reuse_address = 1    # Seems to make sense in testing environment
+    allow_reuse_address = 1
 
     def server_bind(self):
         """Override server_bind to store the server name."""
@@ -80,8 +61,54 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
     # The default request version.  This only affects responses up until
     # the point where the request line is parsed, so it mainly decides what
     # the client gets back when sending a malformed request line.
-    # Most web servers default to HTTP 0.9, i.e. don't send a status line.
     default_request_version = "ICAP/1.0"
+
+    def read_headers(self):
+        parser = FeedParser()
+
+        while True:
+            line = self.rfile.readline()
+            if line.strip() != '':
+                break
+
+        while True:
+            parser.feed(line)
+            line = self.rfile.readline()
+            if line.strip() == '':
+                break
+        return parser.close()
+
+    def read_chunk(self):
+
+        while True:
+            line = self.rfile.readline().strip()
+            if line != '':
+                break
+
+        arr = line.split(';', 1)
+
+        chunk_size = 0
+        try:
+            chunk_size = int(arr[0], 16)
+        except ValueError:
+            pass
+            # TODO: do better
+            #raise Exception(chunk_size)
+
+        if chunk_size == 0:
+            return ""
+
+        value = self.rfile.read(chunk_size)
+
+        self.rfile.read(2)
+
+        return value
+
+    def write_chunk(self, data):
+        l = hex(len(data))[2:]
+        self.wfile.write(l + '\r\n')
+        self.wfile.write(data)
+        self.wfile.write('\r\n')
 
     def parse_request(self):
         """Parse a request (internal).
@@ -94,75 +121,75 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         error is sent back.
 
         """
-        self.command = None  # set in case of error on the first line
+        self.command = None
         self.request_version = version = self.default_request_version
-        self.close_connection = 1
-        requestline = self.raw_requestline
-        requestline = requestline.rstrip('\r\n')
+
+        # Default behavior is to leave connection open
+        self.close_connection = 0
+
+        requestline = self.raw_requestline.rstrip('\r\n')
         self.requestline = requestline
+
         words = requestline.split()
-        if len(words) == 3:
-            command, path, version = words
-            if version[:5] != 'ICAP/':
-                self.send_error(400, "Bad request version (%r)" % version)
-                return False
-            try:
-                base_version_number = version.split('/', 1)[1]
-                version_number = base_version_number.split(".")
-                # RFC 2145 section 3.1 says there can be only one "." and
-                #   - major and minor numbers MUST be treated as
-                #      separate integers;
-                #   - ICAP/2.4 is a lower version than ICAP/2.13, which in
-                #      turn is lower than ICAP/12.3;
-                #   - Leading zeros MUST be ignored by recipients.
-                if len(version_number) != 2:
-                    raise ValueError
-                version_number = int(version_number[0]), int(version_number[1])
-            except (ValueError, IndexError):
-                self.send_error(400, "Bad request version (%r)" % version)
-                return False
-            if version_number > (1, 0):
-                self.send_error(505,
-                          "Invalid ICAP Version (%s)" % base_version_number)
-                return False
-        elif len(words) == 2:
-            command, path = words
-            if command not in  ['OPTIONS', 'REQMOD', 'RESPMOD']:
-                # TODO
-                self.send_error(400,
-                                "Bad ICAP/1.0 request type (%r)" % command)
-                return False
-        elif not words:
-            return False
-        else:
+        if len(words) != 3:
             self.send_error(400, "Bad request syntax (%r)" % requestline)
             return False
+
+        command, path, version = words
+
+        if version[:5] != 'ICAP/':
+            self.send_error(400, "Bad request protocol, only accepting ICAP")
+            return False
+
+        if command not in  ['OPTIONS', 'REQMOD', 'RESPMOD']:
+            self.send_error(400, "Bad ICAP request type (%r)" % command)
+            return False
+
+        try:
+            base_version_number = version.split('/', 1)[1]
+            version_number = base_version_number.split(".")
+            # RFC 2145 section 3.1 says there can be only one "." and
+            #   - major and minor numbers MUST be treated as
+            #      separate integers;
+            #   - ICAP/2.4 is a lower version than ICAP/2.13, which in
+            #      turn is lower than ICAP/12.3;
+            #   - Leading zeros MUST be ignored by recipients.
+            if len(version_number) != 2:
+                raise ValueError
+            version_number = int(version_number[0]), int(version_number[1])
+        except (ValueError, IndexError):
+            self.send_error(400, "Bad request version (%r)" % version)
+            return False
+
+        if version_number != (1, 0):
+            self.send_error(505, "Invalid ICAP Version (%s)" % base_version_number)
+            return False
+
         self.command, self.path, self.request_version = command, path, version
 
         # Examine the headers and look for a Connection directive
-        self.headers = self.MessageClass(self.rfile, 0)
+        self.headers = self.read_headers()
 
-        self.close_connection = 1
+        self.close_connection = 0
 
-        conntype = self.headers.get('Connection', "")
-        if conntype.lower() != 'close':
-            self.close_connection = 0
+        conntype = self.headers.get('Connection', '')
+        if conntype.lower() == 'close':
+            self.close_connection = 1
 
         # Get the encapsulated headers
         self.encapsulated = {}
         if self.command in ['RESPMOD', 'REQMOD']:
-            for enc in self.headers.get('Encapsulated', "").split(","):
+            for enc in self.headers.get('Encapsulated', '').split(','):
                 k,v = enc.strip().split('=')
                 self.encapsulated[k] = int(v)
 
         if self.command in ['RESPMOD', 'REQMOD']:
-            self.enc_req_headers = self.MessageClass(self.rfile, 0)
+            self.enc_req_headers = self.read_headers()
         else:
             self.enc_req_headers = None
 
         if self.command == 'RESPMOD':
-            self.rfile.readline()
-            self.enc_resp_headers = self.MessageClass(self.rfile, 0)
+            self.enc_resp_headers = self.read_headers()
         else:
             self.enc_resp_headers = None
 
@@ -212,6 +239,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             self.handle_one_request()
 
     def send_error(self, code, message=None):
+        # TODO: maket his ICAP compilant
         """Send and log an error reply.
 
         Arguments are the error code, and a detailed message.
@@ -250,7 +278,6 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
         Also send two standard headers with the server software
         version and the current date.
-
         """
         self.log_request(code)
         if message is None:
@@ -370,9 +397,6 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
     # Set this to HTTP/1.1 to enable automatic keepalive
     protocol_version = "ICAP/1.0"
 
-    # The Message-like class used to parse headers
-    MessageClass = mimetools.Message
-
     # Table mapping response codes to messages; entries have the
     # form {code: (shortmessage, longmessage)}.
     # See RFC 2616.
@@ -443,30 +467,3 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
               'The gateway server did not receive a timely response'),
         505: ('HTTP Version Not Supported', 'Cannot fulfill request.'),
         }
-
-
-def test(HandlerClass = BaseICAPRequestHandler,
-         ServerClass = ICAPServer, protocol="ICAP/1.0"):
-    """Test the ICAP request handler class.
-
-    This runs an HTTP server on port 13440 (or the first command line
-    argument).
-
-    """
-
-    if sys.argv[1:]:
-        port = int(sys.argv[1])
-    else:
-        port = 13440
-    server_address = ('', port)
-
-    HandlerClass.protocol_version = protocol
-    httpd = ServerClass(server_address, HandlerClass)
-
-    sa = httpd.socket.getsockname()
-    print "Serving ICAP on", sa[0], "port", sa[1], "..."
-    httpd.serve_forever()
-
-
-if __name__ == '__main__':
-    test()

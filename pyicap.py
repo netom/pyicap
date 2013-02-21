@@ -47,25 +47,21 @@ class ICAPHandler(BaseICAPServer.BaseICAPRequestHandler):
         self.send_response(200)
         self.send_header('Methods', 'RESPMOD')
         self.send_header('Service', 'Vengit ICAP Server 1.0')
-        self.send_header('Connection', 'close')
         self.end_headers()
 
     def do_REQMOD(self):
         self.send_response(204)
-        self.send_header('Connection', 'close')
         self.end_headers()
 
     def do_RESPMOD(self):
         self.send_response(204)
-        self.send_header('Connection', 'close')
         self.end_headers()
 
-        cl = int(self.enc_resp_headers.get('Content-Length', '0'))
-        if cl == 0:
-            print "Whoops"
-            self.rfile.read()
-        else:
-            self.rfile.read(cl)
+        if not self.encapsulated.has_key('null-body'):
+            while True:
+                chunk = self.read_chunk()
+                if chunk == '':
+                    break
 
 port = 13440
 

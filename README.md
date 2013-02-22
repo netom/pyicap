@@ -61,7 +61,7 @@ class ICAPHandler(BaseICAPRequestHandler):
             xrange(16)
         )))
 
-    def sampleservice_options(self):
+    def echo_options(self):
         self.send_response(200)
         self.send_header('Methods', 'RESPMOD')
         self.send_header('Service', 'Python ICAP Server 1.0')
@@ -74,10 +74,11 @@ class ICAPHandler(BaseICAPRequestHandler):
 
         self.random_istag()
         self.end_headers()
+        self.log_request(200)
 
-    # Convention: 'icap://<host>/method_name'
-    def sampleservice_respmod(self):
+    def echo_respmod(self):
         self.no_adaptation_required()
+        self.log_request(204)
 
 port = 13440
 
@@ -87,7 +88,6 @@ try:
         server.handle_request()
 except KeyboardInterrupt:
     print "Finished"
-
 ```
 
 The above example is a rewritten SimpleHTTPServer example with

@@ -73,7 +73,7 @@ class ICAPHandler(BaseICAPRequestHandler):
         self.end_headers()
 
     # Convention: 'icap://<host>/method_name'
-    def sampleservice(self):
+    def sampleservice_respmod(self):
         self.no_adaptation_required()
 
 port = 13440
@@ -129,20 +129,54 @@ the place_banners_options().
 Various information can be extracted from the ICAP request by examining
 certain fields of the handler object:
 
-* self.enc_req_status: encapsulated request status, list with 3 elements
-* self.enc_req_headers: encapsulated request headers, dictionary of lists
-* self.enc_res_status: encapsulated response status
-* self.enc_res_headers: encapsulated response headers
-* self.has_body: True, if the ICAP request has a body
-* self.servicename: name of the service endpoint
-* self.encapsulated: contains the "Encapsulated:" header's content as a dict
+* enc_req_status: encapsulated request status, list with 3 elements
+* enc_req_headers: encapsulated request headers, dictionary of lists
+* enc_res_status: encapsulated response status
+* enc_res_headers: encapsulated response headers
+* has_body: True, if the ICAP request has a body
+* servicename: name of the service endpoint
+* encapsulated: contains the "Encapsulated:" header's content as a dict
+* ieof: True, if read_chunk() encounters an ieof chunk extension
 
 There are several helper methods that can be called while serving a
 requets:
 
-* send_response(code[, message])
-* send_header()
-* send_error(error_code)
-* no_adaptation_required()
-* continue()
+* send_response(code, message=None): Sends an ICAP response line
+* send_header(header, value): Send a header line immediately
+* send_error(error_code): Sends and entire error response
+* no_adaptation_required(): Sends a response that means that leaves the
+  encapsulated message unaltered. It honors the Allow header, and only
+  sends 204 No adaptation required if the client allowed such response.
+* continue(): Sends an ICAP 100 Continue response to the client. Can be
+  used to request the client to continue sending data after a preview.
+* read_chunk(): Reads a chunk from the client. Be aware that this call
+  blocks. If there is no available data on the line, and Connection: 
+  keep-alive is used, it will cause the server to hang. This method
+  should only be called if it's sure there will be data available
+  eventually. If it returns an empty string, it means that it's the
+  last chunk, and no further read should be executed. It also sets the
+  ieof variable to True, if the ieof chunk extension is encountered.
+  This extension is sent during a preview if the encapsulated message
+  fits in the preview entirelly. If ieof is True continue() must not be
+  called.
+* enc_header(header, value): Set an encapsulated header. Multiple
+  calls will cause the header to be sent more than once. This is useful
+  for example for Cookie: headers.
+* icap_header(header, value): Set an ICAP header. Note that this should
+  not be used normally, since all necesary ICAP headers are set
+  automatically by the framework (such as ISTag, Encapsulated, Date,
+  Server, etc.)
+* send_headers(has_body=False): can be used after setting ICAP and
+  encapsulated headers. The parameter has_body signals the existance of
+  an encapsulated message body.
+* send_chunk(data): writes a chunk to the client. An empty chunk must
+  be written as the last chunk. Data must be sent after send appropriate
+  headers either with send_header() or enc_header()/icap_header() +
+  send_headers(). The two header-sending methods must not be mixed.
+  If sending data with send_headers, the has_body parameter must be set
+  to properly indicate the existance or absence of an encapsulated
+  message body.
+
+
+
 

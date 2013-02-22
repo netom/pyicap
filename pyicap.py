@@ -298,7 +298,8 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         # Else: OPTIONS. No encapsulation.
 
         # Parse service name
-        
+        # TODO: parse nice way
+        self.servicename = self.path.split('//', 1)[1].split('/', 1)[1]
 
         return True
 
@@ -499,13 +500,36 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         return socket.getfqdn(host)
 
     def do_OPTIONS(self):
-        self.options('dummy')
+        try:
+            method = getattr(self, self.servicename + '_options')
+
+            if not callable(method):
+                self.send_error(404)
+            method()
+        except:
+            self.send_error(500)
 
     def do_REQMOD(self):
-        self.send_response(204)
-        self.end_headers()
+        try:
+            # TODO: check if service supports method: decorator?
+            method = getattr(self, self.servicename + '_reqmod')
+            if not callable(method):
+                self.send_error(404)
+            method()
+        except:
+            self.send_error(500)
 
     def do_RESPMOD(self):
+        try:
+            # TODO: check if service supports method: decorator?
+            method = getattr(self, self.servicename + '_respmod')
+            if not callable(method):
+                self.send_error(404)
+            method()
+        except:
+            self.send_error(500)
+
+    def no_adaptation_required(self):
         self.send_response(204)
         self.end_headers()
 
@@ -514,10 +538,3 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
                 chunk = self.read_chunk()
                 if chunk == '':
                     break
-
-    def no_adaptation_required(self):
-        self.send_response(204)
-        self.end_headers()
-
-    def options(self, methodname):
-        pass

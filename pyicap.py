@@ -179,10 +179,11 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         protocol by setting the ieof variable to True.
         """
 
-        #while True:
-        #    line = self.rfile.readline().strip()
-        #    if line != '':
-        #        break
+        # This should not needed
+        while True:
+            line = self.rfile.readline().strip()
+            if line != '':
+                break
 
         arr = line.split(';', 1)
 
@@ -190,7 +191,6 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         try:
             chunk_size = int(arr[0], 16)
         except ValueError:
-            pass
             raise ICAPException(chunk_size)
 
         # Look for ieof chunk extension
@@ -208,15 +208,13 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
     def write_chunk(self, data):
         l = hex(len(data))[2:]
-        self.wfile.write(l + '\r\n')
-        self.wfile.write(data)
-        self.wfile.write('\r\n')
+        self.wfile.write(l + '\r\n' + data + '\r\n')
 
     def cont(self):
         if self.ieof:
             raise ICAPException('Tried to continue on ieof condition')
 
-        self.wfile.write('100 Continue\r\n\r\n')
+        self.wfile.write('ICAP/1.0 100 Continue\r\n\r\n')
 
     def set_enc_status(self, status):
         # TODO: some semantic checking might be OK
@@ -610,14 +608,14 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             self.send_error(500)
 
     def do_RESPMOD(self):
-        try:
+        #try:
             # TODO: check if service supports method: decorator?
             method = getattr(self, self.servicename + '_respmod')
             if not callable(method):
                 self.send_error(404)
             method()
-        except:
-            self.send_error(500)
+        #except:
+        #    self.send_error(500)
 
     def no_adaptation_required(self):
         if '204' in self.allow or self.preview != None:

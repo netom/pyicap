@@ -56,15 +56,18 @@ class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
 class ICAPHandler(BaseICAPRequestHandler):
 
     def random_istag(self):
-        self.send_header('ISTag', ''.join(map(lambda x: random.choice('ABCDIFGHIJabcdefghij1234567890'), xrange(16))))
+        self.send_header('ISTag', ''.join(map(
+            lambda x: random.choice('ABCDIFGHIJabcdefghij1234567890'),
+            xrange(16)
+        )))
 
-    def sampleservice_options(self, methodname):
+    def sampleservice_options(self):
         self.send_response(200)
         self.send_header('Methods', 'RESPMOD')
         self.send_header('Service', 'Python ICAP Server 1.0')
         self.send_header('Preview', '0')
         self.send_header('Transfer-Preview', '*')
-        self.send_header('Transfer-Ignore', 'jpg,jpeg,gif,png,swf,flv,js,css')
+        self.send_header('Transfer-Ignore', 'jpg,jpeg,gif,png,swf,flv')
         self.send_header('Transfer-Complete', '')
         self.send_header('Max-Connections', '100')
         self.send_header('Options-TTL', '3600')
@@ -91,9 +94,9 @@ The above example is a rewritten SimpleHTTPServer example with
 threading. The SocketServer.ThreadingMixin can be used with ICAPServer
 just like you would use it with SimpleHTTPServer.
 
-The class ICAPHandler does the real work.
-
-For every service endpoint there is a pair of methods.
+For every service endpoint there is a pair of methods. The current
+example simply does nothing by telling the ICAP client that the request
+needs no modification.
 
 ICAP defines three HTTP-like methods: OPTIONS, REQMOD and RESPMOD.
 
@@ -129,7 +132,7 @@ the place_banners_options().
 Various information can be extracted from the ICAP request by examining
 certain fields of the handler object:
 
-* enc_req_status: encapsulated request status, list with 3 elements
+* enc_req: encapsulated request line, list with 3 elements
 * enc_req_headers: encapsulated request headers, dictionary of lists
 * enc_res_status: encapsulated response status
 * enc_res_headers: encapsulated response headers
@@ -137,17 +140,24 @@ certain fields of the handler object:
 * servicename: name of the service endpoint
 * encapsulated: contains the "Encapsulated:" header's content as a dict
 * ieof: True, if read_chunk() encounters an ieof chunk extension
+* command: the current ICAP command
+* request_uri: contains the full request URI of the ICAP request
+* version: the version if the current ICAP request
+* preview: None, or an integer that arrived in the Preview header
+* allow: Contains a set() of Allow:-ed stuff
 
 There are several helper methods that can be called while serving a
 requets:
 
 * send_response(code, message=None): Sends an ICAP response line
-* send_header(header, value): Send a header line immediately
+* send_header(header, value): Send a header line immediately. This
+  should not be used directly too often. Use the set_* and
+  send_headers() methods instead.
 * send_error(error_code): Sends and entire error response
 * no_adaptation_required(): Sends a response that means that leaves the
   encapsulated message unaltered. It honors the Allow header, and only
   sends 204 No adaptation required if the client allowed such response.
-* continue(): Sends an ICAP 100 Continue response to the client. Can be
+* cont(): Sends an ICAP 100 Continue response to the client. Can be
   used to request the client to continue sending data after a preview.
 * read_chunk(): Reads a chunk from the client. Be aware that this call
   blocks. If there is no available data on the line, and Connection: 
@@ -159,10 +169,13 @@ requets:
   This extension is sent during a preview if the encapsulated message
   fits in the preview entirelly. If ieof is True continue() must not be
   called.
-* enc_header(header, value): Set an encapsulated header. Multiple
+* set_icap_response(code): sets the ICAP response
+* set_enc_status(stats): Sets the encapsulated status line
+* set_enc_request(request): Sets the encapsulated request line
+* set_enc_header(header, value): Set an encapsulated header. Multiple
   calls will cause the header to be sent more than once. This is useful
   for example for Cookie: headers.
-* icap_header(header, value): Set an ICAP header. Note that this should
+* set_icap_header(header, value): Set an ICAP header. Note that this should
   not be used normally, since all necesary ICAP headers are set
   automatically by the framework (such as ISTag, Encapsulated, Date,
   Server, etc.)

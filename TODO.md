@@ -14,6 +14,8 @@ Bugs
 Improvements
 ------------
 
+* Add a setup.py, post stuff to pypi
+* Generate documentation to pydoc, make available on the web
 * Document the use of Date, Server, ISTag headers
 * Add a method to send encapsulated HTTP errors
 * set_* -> add_* to make handling headers more flexible

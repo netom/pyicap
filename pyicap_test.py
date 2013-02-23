@@ -11,7 +11,7 @@ class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
 
 class ICAPHandler(BaseICAPRequestHandler):
 
-    def echo_options(self):
+    def echo_OPTIONS(self):
         self.set_icap_response(200)
         self.set_icap_header('Methods', 'RESPMOD')
         self.set_icap_header('Service', 'Vengit ICAP Server 1.0')
@@ -22,9 +22,8 @@ class ICAPHandler(BaseICAPRequestHandler):
         self.set_icap_header('Max-Connections', '100')
         self.set_icap_header('Options-TTL', '3600')
         self.send_headers(False)
-        self.log_request(200)
 
-    def echo_respmod(self):
+    def echo_RESPMOD(self):
         self.set_icap_response(200)
 
         self.set_enc_status(' '.join(self.enc_res_status))
@@ -38,12 +37,10 @@ class ICAPHandler(BaseICAPRequestHandler):
         # Well, without preview, it'd be quite simple...
         if not self.has_body:
             self.send_headers(False)
-            self.log_request(200)
             return
         if self.preview:
             prevbuf = ''
             while True:
-                # TODO: is this appropriate? How much we can write here?
                 chunk = self.read_chunk()
                 if chunk == '':
                     break
@@ -53,7 +50,6 @@ class ICAPHandler(BaseICAPRequestHandler):
                 if len(prevbuf) > 0:
                     self.write_chunk(prevbuf)
                 self.write_chunk('')
-                self.log_request(200)
                 return
             self.cont()
             self.send_headers(True)
@@ -71,8 +67,6 @@ class ICAPHandler(BaseICAPRequestHandler):
                 self.write_chunk(chunk)
                 if chunk == '':
                     break
-
-        self.log_request(200)
 
 port = 13440
 

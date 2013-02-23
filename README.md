@@ -145,15 +145,13 @@ certain fields of the handler object:
 * version: the version if the current ICAP request
 * preview: None, or an integer that arrived in the Preview header
 * allow: Contains a set() of Allow:-ed stuff
+* icap_response_code: contains the response code if set_icap_reponse
+  was called.
 
 There are several helper methods that can be called while serving a
 requets:
 
-* send_response(code, message=None): Sends an ICAP response line
-* send_header(header, value): Send a header line immediately. This
-  should not be used directly too often. Use the set_* and
-  send_headers() methods instead.
-* send_error(error_code): Sends and entire error response
+* send_error(error_code): Sends and entire ICAP error response
 * no_adaptation_required(): Sends a response that means that leaves the
   encapsulated message unaltered. It honors the Allow header, and only
   sends 204 No adaptation required if the client allowed such response.

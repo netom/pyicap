@@ -14,7 +14,7 @@ class ICAPHandler(BaseICAPRequestHandler):
     def echo_OPTIONS(self):
         self.set_icap_response(200)
         self.set_icap_header('Methods', 'RESPMOD')
-        self.set_icap_header('Service', 'Vengit ICAP Server 1.0')
+        self.set_icap_header('Service', 'PyICAP Server 1.0')
         self.set_icap_header('Preview', '0')
         self.set_icap_header('Transfer-Preview', '*')
         self.set_icap_header('Transfer-Ignore', 'jpg,jpeg,gif,png,swf,flv')

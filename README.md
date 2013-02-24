@@ -3,6 +3,21 @@ pyicap
 
 A Python framework for writing ICAP servers
 
+Installation
+------------
+
+You can use the package right away, if you copy the pyicap.py file
+onto your PYTHONPATH, or the directory of your python module.
+
+A setup.py is provided with the package, run it to install the
+package:
+
+    sudo ./setup.py install
+
+You can also install with pip or easy-install:
+
+    sudo pip install pyicap
+
 What is ICAP?
 -------------
 

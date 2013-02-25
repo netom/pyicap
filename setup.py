@@ -10,7 +10,7 @@ setup(
     author='FÁBIÁN Tamás László',
     author_email='giganetom@gmail.com',
     url='https://github.com/netom/pyicap/',
-    download_url='https://github.com/netom/pyicap/tarball/1.0a1#egg=pyicap-1.0a1',
+    download_url='https://github.com/netom/pyicap/tarball/1.0a2#egg=pyicap-1.0a2',
     license='BSD License',
     platforms='OS Independent',
     py_modules=['pyicap'],

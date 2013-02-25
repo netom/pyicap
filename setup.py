@@ -5,7 +5,7 @@ from distutils.core import setup, Extension
 
 setup(
     name='pyicap',
-    version='1.0a1',
+    version='1.0a2',
     description='A framework for writing ICAP servers',
     author='FÁBIÁN Tamás László',
     author_email='giganetom@gmail.com',

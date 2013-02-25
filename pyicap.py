@@ -581,6 +581,10 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         is returned to the client.
         """
         if '204' in self.allow or self.preview != None:
+            # We MUST read everything the client sent us
+            while True:
+                if self.read_chunk() == '':
+                    break
             self.set_icap_response(204)
             self.send_headers()
         else:

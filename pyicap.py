@@ -11,6 +11,7 @@ import sys
 import time
 import random
 import socket
+import urlparse
 import SocketServer
 
 class ICAPError(Exception):
@@ -419,8 +420,8 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         # Else: OPTIONS. No encapsulation.
 
         # Parse service name
-        # TODO: parse nice way
-        self.servicename = self.request_uri.split('//', 1)[1].split('/', 1)[1]
+        # TODO: document "url routing"
+        self.servicename = urlparse.urlparse(self.request_uri)[2].strip('/')
 
     def handle(self):
         """Handles a connection
@@ -465,6 +466,8 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             self.close_connection = 1
         except ICAPError, e:
             self.send_error(e.code, e.message)
+        except:
+            self.send_error(500)
 
     # TODO: might be nice if we could easily send encapsulated errors
     def send_error(self, code, message=None):
@@ -575,7 +578,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
     def no_adaptation_required(self):
         """Tells the client to leave the message unaltered
-        
+
         If the client allows 204, or this is a preview request than
         a 204 preview response is sent. Otherwise a copy of the message
         is returned to the client.

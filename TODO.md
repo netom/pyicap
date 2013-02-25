@@ -6,9 +6,11 @@ Bugs
 
 * read_chunk has to look for a non-empty line before it start the real
   work. As far as I understand HTTP and ICAP, this shouldn't be this
-  way. It's just a really dirty workaround for a nasty bug.
+  way. It's just a really dirty workaround for a nasty bug. (high
+  priority)
+* Add support for http entity headers. (high priority)
 * squid3: icap_persistent_connections=on does not work (high priority)
-* Can't handle Trailer: header (low priority)
+* Can't handle Trailer: header (See ICAP errata!) (low priority)
 * Can't handle Upgrade: header (low priority)
 
 Improvements

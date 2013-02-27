@@ -185,7 +185,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         # TODO: can this cause the server to burn CPU?
         while True:
             line = self.rfile.readline()
-            if line = '':
+            if line == '':
                 # Very-very ugly. Needs to be fixed soon
                 return ''
             line = line.strip()

@@ -182,8 +182,13 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         """
 
         # This should not needed
+        # TODO: can this cause the server to burn CPU?
         while True:
-            line = self.rfile.readline().strip()
+            line = self.rfile.readline()
+            if line = '':
+                # Very-very ugly. Needs to be fixed soon
+                return ''
+            line = line.strip()
             if line != '':
                 break
 
@@ -321,9 +326,9 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         for k in self.icap_headers:
             for v in self.icap_headers[k]:
                 icap_header_str += k + ': ' + v + '\r\n'
-                if k.lower == 'connection' and v == 'close':
+                if k.lower() == 'connection' and v.lower() == 'close':
                     self.close_connection = True
-                if k.lower == 'connection' and v == 'keep-alive':
+                if k.lower() == 'connection' and v.lower() == 'keep-alive':
                     self.close_connection = False
 
         icap_header_str += '\r\n'

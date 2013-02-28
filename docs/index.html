@@ -1,0 +1,381 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module pyicap</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>pyicap</strong></big></big> (version 1.0)</font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/netom/hobbi/pyicap/pyicap.py">/home/netom/hobbi/pyicap/pyicap.py</a></font></td></tr></table>
+    <p><tt>Implements&nbsp;an&nbsp;ICAP&nbsp;server&nbsp;framework<br>
+&nbsp;<br>
+For&nbsp;the&nbsp;ICAP&nbsp;specification,&nbsp;see&nbsp;<a href="http://www.rfc-editor.org/rfc/rfc3507.txt">RFC&nbsp;3507</a></tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="SocketServer.html">SocketServer</a><br>
+<a href="random.html">random</a><br>
+</td><td width="25%" valign=top><a href="socket.html">socket</a><br>
+<a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+<a href="urlparse.html">urlparse</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="SocketServer.html#StreamRequestHandler">SocketServer.StreamRequestHandler</a>(<a href="SocketServer.html#BaseRequestHandler">SocketServer.BaseRequestHandler</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="pyicap.html#BaseICAPRequestHandler">BaseICAPRequestHandler</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="SocketServer.html#TCPServer">SocketServer.TCPServer</a>(<a href="SocketServer.html#BaseServer">SocketServer.BaseServer</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="pyicap.html#ICAPServer">ICAPServer</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="exceptions.html#Exception">exceptions.Exception</a>(<a href="exceptions.html#BaseException">exceptions.BaseException</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="pyicap.html#ICAPError">ICAPError</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="BaseICAPRequestHandler">class <strong>BaseICAPRequestHandler</strong></a>(<a href="SocketServer.html#StreamRequestHandler">SocketServer.StreamRequestHandler</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>ICAP&nbsp;request&nbsp;handler&nbsp;base&nbsp;class.<br>
+&nbsp;<br>
+You&nbsp;have&nbsp;to&nbsp;subclass&nbsp;it&nbsp;and&nbsp;provide&nbsp;methods&nbsp;for&nbsp;each&nbsp;service<br>
+endpoint.&nbsp;Every&nbsp;endpoint&nbsp;MUST&nbsp;have&nbsp;an&nbsp;_OPTION&nbsp;method,&nbsp;and&nbsp;either<br>
+a&nbsp;_REQMOD&nbsp;or&nbsp;a&nbsp;_RESPMOD&nbsp;method.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="pyicap.html#BaseICAPRequestHandler">BaseICAPRequestHandler</a></dd>
+<dd><a href="SocketServer.html#StreamRequestHandler">SocketServer.StreamRequestHandler</a></dd>
+<dd><a href="SocketServer.html#BaseRequestHandler">SocketServer.BaseRequestHandler</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="BaseICAPRequestHandler-address_string"><strong>address_string</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;client&nbsp;address&nbsp;formatted&nbsp;for&nbsp;logging.<br>
+&nbsp;<br>
+This&nbsp;version&nbsp;looks&nbsp;up&nbsp;the&nbsp;full&nbsp;hostname&nbsp;using&nbsp;gethostbyaddr(),<br>
+and&nbsp;tries&nbsp;to&nbsp;find&nbsp;a&nbsp;name&nbsp;that&nbsp;contains&nbsp;at&nbsp;least&nbsp;one&nbsp;dot.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-cont"><strong>cont</strong></a>(self)</dt><dd><tt>Send&nbsp;a&nbsp;100&nbsp;continue&nbsp;reply<br>
+&nbsp;<br>
+Useful&nbsp;when&nbsp;the&nbsp;client&nbsp;sends&nbsp;a&nbsp;preview&nbsp;request,&nbsp;and&nbsp;we&nbsp;have<br>
+to&nbsp;read&nbsp;the&nbsp;entire&nbsp;message&nbsp;body.&nbsp;After&nbsp;this&nbsp;command,&nbsp;read_chunk<br>
+can&nbsp;safely&nbsp;be&nbsp;called&nbsp;again.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-date_time_string"><strong>date_time_string</strong></a>(self, timestamp<font color="#909090">=None</font>)</dt><dd><tt>Return&nbsp;the&nbsp;current&nbsp;date&nbsp;and&nbsp;time&nbsp;formatted&nbsp;for&nbsp;a&nbsp;message&nbsp;header.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-handle"><strong>handle</strong></a>(self)</dt><dd><tt>Handles&nbsp;a&nbsp;connection<br>
+&nbsp;<br>
+Since&nbsp;we&nbsp;support&nbsp;Connection:&nbsp;keep-alive,&nbsp;moreover&nbsp;this&nbsp;is&nbsp;the<br>
+default&nbsp;behavior,&nbsp;one&nbsp;connection&nbsp;may&nbsp;mean&nbsp;multiple&nbsp;ICAP<br>
+requests.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-handle_one_request"><strong>handle_one_request</strong></a>(self)</dt><dd><tt>Handle&nbsp;a&nbsp;single&nbsp;HTTP&nbsp;request.<br>
+&nbsp;<br>
+You&nbsp;normally&nbsp;don't&nbsp;need&nbsp;to&nbsp;override&nbsp;this&nbsp;method;&nbsp;see&nbsp;the&nbsp;class<br>
+__doc__&nbsp;string&nbsp;for&nbsp;information&nbsp;on&nbsp;how&nbsp;to&nbsp;handle&nbsp;specific&nbsp;HTTP<br>
+commands&nbsp;such&nbsp;as&nbsp;GET&nbsp;and&nbsp;POST.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-log_date_time_string"><strong>log_date_time_string</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;current&nbsp;time&nbsp;formatted&nbsp;for&nbsp;logging.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-log_error"><strong>log_error</strong></a>(self, format, *args)</dt><dd><tt>Log&nbsp;an&nbsp;error.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;called&nbsp;when&nbsp;a&nbsp;request&nbsp;cannot&nbsp;be&nbsp;fulfilled.&nbsp;&nbsp;By<br>
+default&nbsp;it&nbsp;passes&nbsp;the&nbsp;message&nbsp;on&nbsp;to&nbsp;<a href="#BaseICAPRequestHandler-log_message">log_message</a>().<br>
+&nbsp;<br>
+Arguments&nbsp;are&nbsp;the&nbsp;same&nbsp;as&nbsp;for&nbsp;<a href="#BaseICAPRequestHandler-log_message">log_message</a>().<br>
+&nbsp;<br>
+XXX&nbsp;This&nbsp;should&nbsp;go&nbsp;to&nbsp;the&nbsp;separate&nbsp;error&nbsp;log.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-log_message"><strong>log_message</strong></a>(self, format, *args)</dt><dd><tt>Log&nbsp;an&nbsp;arbitrary&nbsp;message.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;used&nbsp;by&nbsp;all&nbsp;other&nbsp;logging&nbsp;functions.&nbsp;&nbsp;Override<br>
+it&nbsp;if&nbsp;you&nbsp;have&nbsp;specific&nbsp;logging&nbsp;wishes.<br>
+&nbsp;<br>
+The&nbsp;first&nbsp;argument,&nbsp;FORMAT,&nbsp;is&nbsp;a&nbsp;format&nbsp;string&nbsp;for&nbsp;the<br>
+message&nbsp;to&nbsp;be&nbsp;logged.&nbsp;&nbsp;If&nbsp;the&nbsp;format&nbsp;string&nbsp;contains<br>
+any&nbsp;%&nbsp;escapes&nbsp;requiring&nbsp;parameters,&nbsp;they&nbsp;should&nbsp;be<br>
+specified&nbsp;as&nbsp;subsequent&nbsp;arguments&nbsp;(it's&nbsp;just&nbsp;like<br>
+printf!).<br>
+&nbsp;<br>
+The&nbsp;client&nbsp;ip&nbsp;address&nbsp;and&nbsp;current&nbsp;date/time&nbsp;are&nbsp;prefixed&nbsp;to&nbsp;every<br>
+message.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-log_request"><strong>log_request</strong></a>(self, code<font color="#909090">='-'</font>, size<font color="#909090">='-'</font>)</dt><dd><tt>Log&nbsp;an&nbsp;accepted&nbsp;request.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;called&nbsp;by&nbsp;send_response().</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-no_adaptation_required"><strong>no_adaptation_required</strong></a>(self)</dt><dd><tt>Tells&nbsp;the&nbsp;client&nbsp;to&nbsp;leave&nbsp;the&nbsp;message&nbsp;unaltered<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;client&nbsp;allows&nbsp;204,&nbsp;or&nbsp;this&nbsp;is&nbsp;a&nbsp;preview&nbsp;request&nbsp;than<br>
+a&nbsp;204&nbsp;preview&nbsp;response&nbsp;is&nbsp;sent.&nbsp;Otherwise&nbsp;a&nbsp;copy&nbsp;of&nbsp;the&nbsp;message<br>
+is&nbsp;returned&nbsp;to&nbsp;the&nbsp;client.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-parse_request"><strong>parse_request</strong></a>(self)</dt><dd><tt>Parse&nbsp;a&nbsp;request&nbsp;(internal).<br>
+&nbsp;<br>
+The&nbsp;request&nbsp;should&nbsp;be&nbsp;stored&nbsp;in&nbsp;self.<strong>raw_requestline</strong>;&nbsp;the&nbsp;results<br>
+are&nbsp;in&nbsp;self.<strong>command</strong>,&nbsp;self.<strong>request_uri</strong>,&nbsp;self.<strong>request_version</strong>&nbsp;and<br>
+self.<strong>headers</strong>.<br>
+&nbsp;<br>
+Return&nbsp;True&nbsp;for&nbsp;success,&nbsp;False&nbsp;for&nbsp;failure;&nbsp;on&nbsp;failure,&nbsp;an<br>
+error&nbsp;is&nbsp;sent&nbsp;back.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-read_chunk"><strong>read_chunk</strong></a>(self)</dt><dd><tt>Read&nbsp;a&nbsp;HTTP&nbsp;chunk<br>
+&nbsp;<br>
+Also&nbsp;handles&nbsp;the&nbsp;ieof&nbsp;chunk&nbsp;extension&nbsp;defined&nbsp;by&nbsp;the&nbsp;ICAP<br>
+protocol&nbsp;by&nbsp;setting&nbsp;the&nbsp;ieof&nbsp;variable&nbsp;to&nbsp;True.&nbsp;It&nbsp;returns&nbsp;an<br>
+empty&nbsp;line&nbsp;if&nbsp;the&nbsp;last&nbsp;chunk&nbsp;is&nbsp;read.&nbsp;Further&nbsp;reads&nbsp;might&nbsp;hang<br>
+forever.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-send_error"><strong>send_error</strong></a>(self, code, message<font color="#909090">=None</font>)</dt><dd><tt>Send&nbsp;and&nbsp;log&nbsp;an&nbsp;error&nbsp;reply.<br>
+&nbsp;<br>
+Arguments&nbsp;are&nbsp;the&nbsp;error&nbsp;code,&nbsp;and&nbsp;a&nbsp;detailed&nbsp;message.<br>
+The&nbsp;detailed&nbsp;message&nbsp;defaults&nbsp;to&nbsp;the&nbsp;short&nbsp;entry&nbsp;matching&nbsp;the<br>
+response&nbsp;code.<br>
+&nbsp;<br>
+This&nbsp;sends&nbsp;an&nbsp;error&nbsp;response&nbsp;(so&nbsp;it&nbsp;must&nbsp;be&nbsp;called&nbsp;before&nbsp;any<br>
+output&nbsp;has&nbsp;been&nbsp;generated),&nbsp;logs&nbsp;the&nbsp;error,&nbsp;and&nbsp;finally&nbsp;sends<br>
+a&nbsp;piece&nbsp;of&nbsp;HTML&nbsp;explaining&nbsp;the&nbsp;error&nbsp;to&nbsp;the&nbsp;user.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-send_headers"><strong>send_headers</strong></a>(self, has_body<font color="#909090">=False</font>)</dt><dd><tt>Send&nbsp;ICAP&nbsp;and&nbsp;encapsulated&nbsp;headers<br>
+&nbsp;<br>
+Assembles&nbsp;the&nbsp;Encapsulated&nbsp;header,&nbsp;so&nbsp;it's&nbsp;need&nbsp;the&nbsp;information<br>
+of&nbsp;wether&nbsp;an&nbsp;encapsulated&nbsp;message&nbsp;body&nbsp;is&nbsp;present.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-set_enc_header"><strong>set_enc_header</strong></a>(self, header, value)</dt><dd><tt>Set&nbsp;an&nbsp;encapsulated&nbsp;header&nbsp;to&nbsp;the&nbsp;given&nbsp;value<br>
+&nbsp;<br>
+Multiple&nbsp;sets&nbsp;will&nbsp;cause&nbsp;the&nbsp;header&nbsp;to&nbsp;be&nbsp;sent&nbsp;multiple&nbsp;times.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-set_enc_request"><strong>set_enc_request</strong></a>(self, request)</dt><dd><tt>Set&nbsp;encapsulated&nbsp;request&nbsp;line&nbsp;in&nbsp;response<br>
+&nbsp;<br>
+ICAP&nbsp;responses&nbsp;can&nbsp;only&nbsp;contain&nbsp;one&nbsp;encapsulated&nbsp;header&nbsp;section.<br>
+Such&nbsp;section&nbsp;is&nbsp;either&nbsp;an&nbsp;encapsulated&nbsp;HTTP&nbsp;request,&nbsp;or&nbsp;a<br>
+response.&nbsp;This&nbsp;method&nbsp;can&nbsp;be&nbsp;called&nbsp;to&nbsp;set&nbsp;encapsulated&nbsp;HTTP<br>
+request's&nbsp;request&nbsp;line.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-set_enc_status"><strong>set_enc_status</strong></a>(self, status)</dt><dd><tt>Set&nbsp;encapsulated&nbsp;status&nbsp;in&nbsp;response<br>
+&nbsp;<br>
+ICAP&nbsp;responses&nbsp;can&nbsp;only&nbsp;contain&nbsp;one&nbsp;encapsulated&nbsp;header&nbsp;section.<br>
+Such&nbsp;section&nbsp;is&nbsp;either&nbsp;an&nbsp;encapsulated&nbsp;HTTP&nbsp;request,&nbsp;or&nbsp;a<br>
+response.&nbsp;This&nbsp;method&nbsp;can&nbsp;be&nbsp;called&nbsp;to&nbsp;set&nbsp;encapsulated&nbsp;HTTP<br>
+response's&nbsp;status&nbsp;line.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-set_icap_header"><strong>set_icap_header</strong></a>(self, header, value)</dt><dd><tt>Set&nbsp;an&nbsp;ICAP&nbsp;header&nbsp;to&nbsp;the&nbsp;given&nbsp;value<br>
+&nbsp;<br>
+Multiple&nbsp;sets&nbsp;will&nbsp;cause&nbsp;the&nbsp;header&nbsp;to&nbsp;be&nbsp;sent&nbsp;multiple&nbsp;times.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-set_icap_response"><strong>set_icap_response</strong></a>(self, code)</dt><dd><tt>Sets&nbsp;the&nbsp;ICAP&nbsp;response's&nbsp;status&nbsp;line&nbsp;and&nbsp;response&nbsp;code</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-setup"><strong>setup</strong></a>(self)</dt><dd><tt>Initialize&nbsp;the&nbsp;handler<br>
+Assignes&nbsp;default&nbsp;values&nbsp;to&nbsp;every&nbsp;field&nbsp;of&nbsp;this&nbsp;object</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-version_string"><strong>version_string</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;server&nbsp;software&nbsp;version&nbsp;string.</tt></dd></dl>
+
+<dl><dt><a name="BaseICAPRequestHandler-write_chunk"><strong>write_chunk</strong></a>(self, data)</dt><dd><tt>Write&nbsp;a&nbsp;chunk&nbsp;of&nbsp;data<br>
+&nbsp;<br>
+When&nbsp;finished&nbsp;writing,&nbsp;an&nbsp;empty&nbsp;chunk&nbsp;with&nbsp;data=''&nbsp;must<br>
+be&nbsp;written.</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>protocol_version</strong> = 'ICAP/1.0'</dl>
+
+<hr>
+Methods inherited from <a href="SocketServer.html#StreamRequestHandler">SocketServer.StreamRequestHandler</a>:<br>
+<dl><dt><a name="BaseICAPRequestHandler-finish"><strong>finish</strong></a>(self)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="SocketServer.html#StreamRequestHandler">SocketServer.StreamRequestHandler</a>:<br>
+<dl><dt><strong>rbufsize</strong> = -1</dl>
+
+<dl><dt><strong>wbufsize</strong> = 0</dl>
+
+<hr>
+Methods inherited from <a href="SocketServer.html#BaseRequestHandler">SocketServer.BaseRequestHandler</a>:<br>
+<dl><dt><a name="BaseICAPRequestHandler-__init__"><strong>__init__</strong></a>(self, request, client_address, server)</dt></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ICAPError">class <strong>ICAPError</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Signals&nbsp;a&nbsp;protocol&nbsp;error<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="pyicap.html#ICAPError">ICAPError</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="ICAPError-__init__"><strong>__init__</strong></a>(self, code<font color="#909090">=500</font>, message<font color="#909090">=None</font>)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#ICAPError-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="ICAPError-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#ICAPError-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="ICAPError-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#ICAPError-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="ICAPError-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#ICAPError-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="ICAPError-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#ICAPError-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="ICAPError-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ICAPError-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#ICAPError-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="ICAPError-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#ICAPError-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="ICAPError-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ICAPError-__str__"><strong>__str__</strong></a>(...)</dt><dd><tt>x.<a href="#ICAPError-__str__">__str__</a>()&nbsp;&lt;==&gt;&nbsp;str(x)</tt></dd></dl>
+
+<dl><dt><a name="ICAPError-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ICAPServer">class <strong>ICAPServer</strong></a>(<a href="SocketServer.html#TCPServer">SocketServer.TCPServer</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>ICAP&nbsp;Server<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;a&nbsp;simple&nbsp;<a href="SocketServer.html#TCPServer">TCPServer</a>,&nbsp;that&nbsp;allows&nbsp;address&nbsp;reuse<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="pyicap.html#ICAPServer">ICAPServer</a></dd>
+<dd><a href="SocketServer.html#TCPServer">SocketServer.TCPServer</a></dd>
+<dd><a href="SocketServer.html#BaseServer">SocketServer.BaseServer</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>allow_reuse_address</strong> = 1</dl>
+
+<hr>
+Methods inherited from <a href="SocketServer.html#TCPServer">SocketServer.TCPServer</a>:<br>
+<dl><dt><a name="ICAPServer-__init__"><strong>__init__</strong></a>(self, server_address, RequestHandlerClass, bind_and_activate<font color="#909090">=True</font>)</dt><dd><tt>Constructor.&nbsp;&nbsp;May&nbsp;be&nbsp;extended,&nbsp;do&nbsp;not&nbsp;override.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-close_request"><strong>close_request</strong></a>(self, request)</dt><dd><tt>Called&nbsp;to&nbsp;clean&nbsp;up&nbsp;an&nbsp;individual&nbsp;request.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-fileno"><strong>fileno</strong></a>(self)</dt><dd><tt>Return&nbsp;socket&nbsp;file&nbsp;number.<br>
+&nbsp;<br>
+Interface&nbsp;required&nbsp;by&nbsp;select().</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-get_request"><strong>get_request</strong></a>(self)</dt><dd><tt>Get&nbsp;the&nbsp;request&nbsp;and&nbsp;client&nbsp;address&nbsp;from&nbsp;the&nbsp;socket.<br>
+&nbsp;<br>
+May&nbsp;be&nbsp;overridden.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-server_activate"><strong>server_activate</strong></a>(self)</dt><dd><tt>Called&nbsp;by&nbsp;constructor&nbsp;to&nbsp;activate&nbsp;the&nbsp;server.<br>
+&nbsp;<br>
+May&nbsp;be&nbsp;overridden.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-server_bind"><strong>server_bind</strong></a>(self)</dt><dd><tt>Called&nbsp;by&nbsp;constructor&nbsp;to&nbsp;bind&nbsp;the&nbsp;socket.<br>
+&nbsp;<br>
+May&nbsp;be&nbsp;overridden.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-server_close"><strong>server_close</strong></a>(self)</dt><dd><tt>Called&nbsp;to&nbsp;clean-up&nbsp;the&nbsp;server.<br>
+&nbsp;<br>
+May&nbsp;be&nbsp;overridden.</tt></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="SocketServer.html#TCPServer">SocketServer.TCPServer</a>:<br>
+<dl><dt><strong>address_family</strong> = 2</dl>
+
+<dl><dt><strong>request_queue_size</strong> = 5</dl>
+
+<dl><dt><strong>socket_type</strong> = 1</dl>
+
+<hr>
+Methods inherited from <a href="SocketServer.html#BaseServer">SocketServer.BaseServer</a>:<br>
+<dl><dt><a name="ICAPServer-finish_request"><strong>finish_request</strong></a>(self, request, client_address)</dt><dd><tt>Finish&nbsp;one&nbsp;request&nbsp;by&nbsp;instantiating&nbsp;RequestHandlerClass.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-handle_error"><strong>handle_error</strong></a>(self, request, client_address)</dt><dd><tt>Handle&nbsp;an&nbsp;error&nbsp;gracefully.&nbsp;&nbsp;May&nbsp;be&nbsp;overridden.<br>
+&nbsp;<br>
+The&nbsp;default&nbsp;is&nbsp;to&nbsp;print&nbsp;a&nbsp;traceback&nbsp;and&nbsp;continue.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-handle_request"><strong>handle_request</strong></a>(self)</dt><dd><tt>Handle&nbsp;one&nbsp;request,&nbsp;possibly&nbsp;blocking.<br>
+&nbsp;<br>
+Respects&nbsp;self.<strong>timeout</strong>.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-handle_timeout"><strong>handle_timeout</strong></a>(self)</dt><dd><tt>Called&nbsp;if&nbsp;no&nbsp;new&nbsp;request&nbsp;arrives&nbsp;within&nbsp;self.<strong>timeout</strong>.<br>
+&nbsp;<br>
+Overridden&nbsp;by&nbsp;ForkingMixIn.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-process_request"><strong>process_request</strong></a>(self, request, client_address)</dt><dd><tt>Call&nbsp;finish_request.<br>
+&nbsp;<br>
+Overridden&nbsp;by&nbsp;ForkingMixIn&nbsp;and&nbsp;ThreadingMixIn.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-serve_forever"><strong>serve_forever</strong></a>(self, poll_interval<font color="#909090">=0.5</font>)</dt><dd><tt>Handle&nbsp;one&nbsp;request&nbsp;at&nbsp;a&nbsp;time&nbsp;until&nbsp;shutdown.<br>
+&nbsp;<br>
+Polls&nbsp;for&nbsp;shutdown&nbsp;every&nbsp;poll_interval&nbsp;seconds.&nbsp;Ignores<br>
+self.<strong>timeout</strong>.&nbsp;If&nbsp;you&nbsp;need&nbsp;to&nbsp;do&nbsp;periodic&nbsp;tasks,&nbsp;do&nbsp;them&nbsp;in<br>
+another&nbsp;thread.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-shutdown"><strong>shutdown</strong></a>(self)</dt><dd><tt>Stops&nbsp;the&nbsp;serve_forever&nbsp;loop.<br>
+&nbsp;<br>
+Blocks&nbsp;until&nbsp;the&nbsp;loop&nbsp;has&nbsp;finished.&nbsp;This&nbsp;must&nbsp;be&nbsp;called&nbsp;while<br>
+<a href="#ICAPServer-serve_forever">serve_forever</a>()&nbsp;is&nbsp;running&nbsp;in&nbsp;another&nbsp;thread,&nbsp;or&nbsp;it&nbsp;will<br>
+deadlock.</tt></dd></dl>
+
+<dl><dt><a name="ICAPServer-verify_request"><strong>verify_request</strong></a>(self, request, client_address)</dt><dd><tt>Verify&nbsp;the&nbsp;request.&nbsp;&nbsp;May&nbsp;be&nbsp;overridden.<br>
+&nbsp;<br>
+Return&nbsp;True&nbsp;if&nbsp;we&nbsp;should&nbsp;proceed&nbsp;with&nbsp;this&nbsp;request.</tt></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="SocketServer.html#BaseServer">SocketServer.BaseServer</a>:<br>
+<dl><dt><strong>timeout</strong> = None</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>__all__</strong> = ['ICAPServer', 'BaseICAPRequestHandler', 'ICAPError']<br>
+<strong>__version__</strong> = '1.0'</td></tr></table>
+</body></html>

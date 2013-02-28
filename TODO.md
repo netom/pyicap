@@ -9,9 +9,6 @@ Not known at the moment. Please let me know if you find one!
 Improvements
 ------------
 
-* The current read_chunk is too stupid, easy to screw up the protocol,
-  needs to be made smarter
-* Generate documentation to pydoc, make available on the web
 * Document the use of Date, Server, ISTag headers
 * After the above is done, go beta
 * Add a method to send encapsulated HTTP errors

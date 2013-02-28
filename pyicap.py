@@ -141,6 +141,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         self.servicename = None
         self.encapsulated = {}
         self.ieof = False
+        self.eob = False
         self.methos = None
         self.preview = None
         self.allow = set()
@@ -177,14 +178,21 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
         Also handles the ieof chunk extension defined by the ICAP
         protocol by setting the ieof variable to True. It returns an
-        empty line if the last chunk is read. Further reads might hang
-        forever.
+        empty line if the last chunk is read. Reading after the last
+        chunks will return empty strings.
         """
+
+        # Don't try to read when there's no body
+        if not self.has_body or self.eob:
+            self.eob = True
+            return ''
 
         line = self.rfile.readline()
         if line == '':
             # Connection was probably closed
+            self.eob = True
             return ''
+
         line = line.strip()
 
         arr = line.split(';', 1)
@@ -199,12 +207,11 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         if len(arr) > 1 and arr[1].strip() == 'ieof':
             self.ieof = True
 
-        if chunk_size == 0:
-            return ""
-
         value = self.rfile.read(chunk_size)
-
         self.rfile.read(2)
+
+        if value == '':
+            self.eob = True
 
         return value
 
@@ -228,6 +235,8 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             raise ICAPError(500, 'Tried to continue on ieof condition')
 
         self.wfile.write('ICAP/1.0 100 Continue\r\n\r\n')
+
+        self.eob = False
 
     def set_enc_status(self, status):
         """Set encapsulated status in response

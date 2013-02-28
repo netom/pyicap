@@ -181,16 +181,11 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         forever.
         """
 
-        # This should not needed
-        # TODO: can this cause the server to burn CPU?
-        while True:
-            line = self.rfile.readline()
-            if line == '':
-                # Very-very ugly. Needs to be fixed soon
-                return ''
-            line = line.strip()
-            if line != '':
-                break
+        line = self.rfile.readline()
+        if line == '':
+            # Connection was probably closed
+            return ''
+        line = line.strip()
 
         arr = line.split(';', 1)
 
@@ -198,7 +193,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         try:
             chunk_size = int(arr[0], 16)
         except ValueError:
-            raise ICAPError(500, 'Protocol error, could not read chunk')
+            raise ICAPError(400, 'Protocol error, could not read chunk')
 
         # Look for ieof chunk extension
         if len(arr) > 1 and arr[1].strip() == 'ieof':

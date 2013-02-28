@@ -24,6 +24,12 @@ class ICAPHandler(BaseICAPRequestHandler):
         self.send_headers(False)
 
     def echo_RESPMOD(self):
+        #while True:
+        #    chunk = self.read_chunk()
+        #    if chunk == '':
+        #        break
+        #self.send_enc_error(500, body='<html><head><title>Whoops</title></head><body><h1>500 ICAP meditation</h1></body></html>')
+        #return
         self.set_icap_response(200)
 
         self.set_enc_status(' '.join(self.enc_res_status))

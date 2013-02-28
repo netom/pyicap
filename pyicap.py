@@ -45,7 +45,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
     # form {code: (shortmessage, longmessage)}.
     # See RFC 2616 and RFC 3507
     _responses = {
-        100: ('Continue', 'Continue after ICAP Preview'),
+        100: ('Continue', 'Request received, please continue'),
         101: ('Switching Protocols',
               'Switching to new protocol; obey Upgrade header'),
 
@@ -54,9 +54,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         202: ('Accepted',
               'Request accepted, processing continues off-line'),
         203: ('Non-Authoritative Information', 'Request fulfilled from cache'),
-
-        204: ('No adaptation required', 'There is no need to modify the content'),
-
+        204: ('No Content', 'Request fulfilled, nothing follows'),
         205: ('Reset Content', 'Clear input form for further input.'),
         206: ('Partial Content', 'Partial content follows.'),
 
@@ -73,21 +71,21 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         307: ('Temporary Redirect',
               'Object moved temporarily -- see URI list'),
 
-        400: ('Bad Request', 'Bad request syntax or unsupported method'),
+        400: ('Bad Request',
+              'Bad request syntax or unsupported method'),
         401: ('Unauthorized',
               'No permission -- see authorization schemes'),
         402: ('Payment Required',
               'No payment -- see charging schemes'),
         403: ('Forbidden',
               'Request forbidden -- authorization will not help'),
-        404: ('ICAP Service not found', 'Nothing matches the given URI'),
-        405: ('Method not allowed for service',
+        404: ('Not Found', 'Nothing matches the given URI'),
+        405: ('Method Not Allowed',
               'Specified method is invalid for this resource.'),
         406: ('Not Acceptable', 'URI not available in preferred format.'),
         407: ('Proxy Authentication Required', 'You must authenticate with '
               'this proxy before proceeding.'),
-        408: ('Request Timeout',
-              'ICAP server gave up waiting for a request from an ICAP client'),
+        408: ('Request Timeout', 'Request timed out; try again later.'),
         409: ('Conflict', 'Request conflict.'),
         410: ('Gone',
               'URI no longer exists and has been permanently removed.'),
@@ -102,15 +100,15 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
               'Expect condition could not be satisfied.'),
 
         500: ('Internal Server Error', 'Server got itself in trouble'),
-        501: ('Method not implemented',
+        501: ('Not Implemented',
               'Server does not support this operation'),
         502: ('Bad Gateway', 'Invalid responses from another server/proxy.'),
-        503: ('Service overloaded',
-              'The ICAP server has exceeded a maximum connection '+
-              'limit associated with this service'),
+        503: ('Service Unavailable',
+              'The server cannot process the request due to a high load'),
         504: ('Gateway Timeout',
               'The gateway server did not receive a timely response'),
-        505: ('ICAP Version not supported by server', 'Cannot fulfill request.'),
+        505: ('Protocol Version Not Supported', 'Cannot fulfill request.'),
+
     }
 
     # The Python system version, truncated to its first component.
@@ -126,33 +124,6 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
     _monthname = [None,
                  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-    def setup(self):
-        """Initialize the handler
-        Assignes default values to every field of this object
-        """
-
-        SocketServer.StreamRequestHandler.setup(self)
-        self.enc_req = None
-        self.enc_req_headers = {}
-        self.enc_res_status = None
-        self.enc_res_headers = {}
-        self.has_body = False
-        self.servicename = None
-        self.encapsulated = {}
-        self.ieof = False
-        self.eob = False
-        self.methos = None
-        self.preview = None
-        self.allow = set()
-
-        self.icap_headers = {}
-        self.enc_headers = {}
-        self.enc_status = None # Seriously, need better names
-        self.enc_request = None
-
-        self.close_connection = False
-        self.icap_response_code = None
 
     def _read_status(self):
         """Read a HTTP or ICAP status line from input stream"""
@@ -439,6 +410,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         default behavior, one connection may mean multiple ICAP
         requests.
         """
+        self.close_connection = False
         while not self.close_connection:
             self.handle_one_request()
 
@@ -450,6 +422,28 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         commands such as GET and POST.
 
         """
+
+        # Initialize handler state
+        self.enc_req = None
+        self.enc_req_headers = {}
+        self.enc_res_status = None
+        self.enc_res_headers = {}
+        self.has_body = False
+        self.servicename = None
+        self.encapsulated = {}
+        self.ieof = False
+        self.eob = False
+        self.methos = None
+        self.preview = None
+        self.allow = set()
+
+        self.icap_headers = {}
+        self.enc_headers = {}
+        self.enc_status = None # Seriously, need better names
+        self.enc_request = None
+
+        self.icap_response_code = None
+
         try:
             self.raw_requestline = self.rfile.readline(65537)
 
@@ -478,7 +472,6 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         except:
             self.send_error(500)
 
-    # TODO: might be nice if we could easily send encapsulated errors
     def send_error(self, code, message=None):
         """Send and log an error reply.
 
@@ -508,6 +501,38 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         self.set_icap_response(code) # TODO: message
         self.set_icap_header('Connection', 'close') # TODO: why?
         self.send_headers()
+
+    def send_enc_error(self, code, message=None, body='', contenttype='text/html'):
+        """Send an encapsulated error reply.
+
+        Arguments are the error code, and a detailed message.
+        The detailed message defaults to the short entry matching the
+        response code.
+
+        This sends an encapsulated error response (so it must be called
+        before any output has been generated), logs the error, and
+        finally sends a piece of HTML explaining the error to the user.
+        """
+
+        try:
+            short, long = self._responses[code]
+        except KeyError:
+            short, long = '???', '???'
+        if message is None:
+            message = short
+        explain = long
+
+        # No encapsulation
+        self.enc_req = None
+
+        self.set_icap_response(200) # TODO: message
+        self.set_enc_status('HTTP/1.1 %s %s' % (str(code), message))
+        self.set_enc_header('Content-Type', contenttype)
+        self.set_enc_header('Content-Length', str(len(body)))
+        self.send_headers(has_body=True)
+        if len(body) > 0:
+            self.write_chunk(body)
+        self.write_chunk('')
 
     def log_request(self, code='-', size='-'):
         """Log an accepted request.

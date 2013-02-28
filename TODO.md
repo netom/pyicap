@@ -11,10 +11,8 @@ Improvements
 
 * Document the use of Date, Server, ISTag headers
 * After the above is done, go beta
-* Add a method to send encapsulated HTTP errors
 * Make header handling smarter
 * set_* -> add_* to make handling headers more flexible
-* squid3: icap_persistent_connections=on does not work (low priority)
 * Can't handle Trailer: header (See ICAP errata!) (low priority)
 * Can't handle Upgrade: header (low priority)
 

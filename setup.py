@@ -5,12 +5,12 @@ from distutils.core import setup, Extension
 
 setup(
     name='pyicap',
-    version='1.0a6',
+    version='1.0a7',
     description='A framework for writing ICAP servers',
     author='FÁBIÁN Tamás László',
     author_email='giganetom@gmail.com',
     url='https://github.com/netom/pyicap/',
-    download_url='https://github.com/netom/pyicap/tarball/1.0a6#egg=pyicap-1.0a6',
+    download_url='https://github.com/netom/pyicap/tarball/1.0a7#egg=pyicap-1.0a7',
     license='BSD License',
     platforms='OS Independent',
     py_modules=['pyicap'],

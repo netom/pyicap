@@ -10,6 +10,8 @@ The ICAP protocol in a nutshell
 
 ISTag
 Encapsulated
+Date
+Server
 
 ### The OPTIONS method
 

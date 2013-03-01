@@ -4,7 +4,7 @@ TODO
 BUGS
 ----
 
-Not known at the moment. Please let me know if you find one!
+None are known at the moment. Please let me know if you find one!
 
 Improvements
 ------------
@@ -12,7 +12,6 @@ Improvements
 * Document the use of Date, Server, ISTag headers
 * After the above is done, go beta
 * Make header handling smarter
-* set_* -> add_* to make handling headers more flexible
 * Can't handle Trailer: header (See ICAP errata!) (low priority)
 * Can't handle Upgrade: header (low priority)
 

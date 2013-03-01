@@ -13,15 +13,24 @@ Encapsulated
 Date
 Server
 
+### 204 No Content
+
+### Preview
+
 ### The OPTIONS method
 
 ### The REQMOD method
 
 ### The RESPMOD method
 
-### 204 No Content
+Creating the test web page
+--------------------------
 
-### Preview
+Configuring Squid for testing PyICAP
+------------------------------------
+
+Setting up your browser
+-----------------------
 
 Example 0: Using the framework
 ------------------------------
@@ -34,10 +43,3 @@ Example 2: Access control
 
 Example 3: Replacing words
 --------------------------
-
-Example 4: Banners
-------------------
-
-Example 5: virus checking
--------------------------
-

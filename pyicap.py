@@ -469,7 +469,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             self.close_connection = 1
         except ICAPError, e:
             self.send_error(e.code, e.message)
-        except:
+        except e:
             self.send_error(500)
 
     def send_error(self, code, message=None):

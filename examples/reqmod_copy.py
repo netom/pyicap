@@ -11,13 +11,13 @@ class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
 
 class ICAPHandler(BaseICAPRequestHandler):
 
-    def echo_OPTIONS(self):
+    def example_OPTIONS(self):
         self.set_icap_response(200)
         self.set_icap_header('Methods', 'REQMOD')
         self.set_icap_header('Service', 'PyICAP Server 1.0')
         self.send_headers(False)
 
-    def echo_REQMOD(self):
+    def example_REQMOD(self):
         self.set_icap_response(200)
 
         self.set_enc_request(' '.join(self.enc_req))

@@ -11,7 +11,7 @@ class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
 
 class ICAPHandler(BaseICAPRequestHandler):
 
-    def echo_OPTIONS(self):
+    def example_OPTIONS(self):
         self.set_icap_response(200)
         self.set_icap_header('Methods', 'RESPMOD')
         self.set_icap_header('Service', 'PyICAP Server 1.0')
@@ -23,7 +23,7 @@ class ICAPHandler(BaseICAPRequestHandler):
         self.set_icap_header('Options-TTL', '3600')
         self.send_headers(False)
 
-    def echo_RESPMOD(self):
+    def example_RESPMOD(self):
         #while True:
         #    chunk = self.read_chunk()
         #    if chunk == '':

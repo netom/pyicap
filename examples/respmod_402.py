@@ -11,13 +11,13 @@ class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
 
 class ICAPHandler(BaseICAPRequestHandler):
 
-    def echo_OPTIONS(self):
+    def example_OPTIONS(self):
         self.set_icap_response(200)
         self.set_icap_header('Methods', 'RESPMOD')
         self.set_icap_header('Preview', '0')
         self.send_headers(False)
 
-    def echo_RESPMOD(self):
+    def example_RESPMOD(self):
         self.no_adaptation_required()
 
 port = 13440

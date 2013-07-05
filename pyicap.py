@@ -25,14 +25,14 @@ class ICAPError(Exception):
 
 class ICAPServer(SocketServer.TCPServer):
     """ICAP Server
-    
+
     This is a simple TCPServer, that allows address reuse
     """
     allow_reuse_address = 1
 
 class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
     """ICAP request handler base class.
-    
+
     You have to subclass it and provide methods for each service
     endpoint. Every endpoint MUST have an _OPTION method, and either
     a _REQMOD or a _RESPMOD method.
@@ -197,7 +197,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
     def cont(self):
         """Send a 100 continue reply
-        
+
         Useful when the client sends a preview request, and we have
         to read the entire message body. After this command, read_chunk
         can safely be called again.
@@ -211,7 +211,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
     def set_enc_status(self, status):
         """Set encapsulated status in response
-        
+
         ICAP responses can only contain one encapsulated header section.
         Such section is either an encapsulated HTTP request, or a
         response. This method can be called to set encapsulated HTTP
@@ -222,7 +222,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
     def set_enc_request(self, request):
         """Set encapsulated request line in response
-        
+
         ICAP responses can only contain one encapsulated header section.
         Such section is either an encapsulated HTTP request, or a
         response. This method can be called to set encapsulated HTTP
@@ -235,7 +235,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
     # TODO: also add convenient mode to query these
     def set_enc_header(self, header, value):
         """Set an encapsulated header to the given value
-        
+
         Multiple sets will cause the header to be sent multiple times.
         """
         self.enc_headers[header] = self.enc_headers.get(header, []) + [value]
@@ -247,7 +247,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
     def set_icap_header(self, header, value):
         """Set an ICAP header to the given value
-        
+
         Multiple sets will cause the header to be sent multiple times.
         """
         self.icap_headers[header] = self.icap_headers.get(header, []) + [value]
@@ -312,7 +312,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             self.icap_response + '\r\n' +
             icap_header_str + enc_header_str
         )
-        
+
 
     def parse_request(self):
         """Parse a request (internal).
@@ -405,7 +405,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
     def handle(self):
         """Handles a connection
-        
+
         Since we support Connection: keep-alive, moreover this is the
         default behavior, one connection may mean multiple ICAP
         requests.
@@ -469,7 +469,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             self.close_connection = 1
         except ICAPError, e:
             self.send_error(e.code, e.message)
-        except e:
+        except:
             self.send_error(500)
 
     def send_error(self, code, message=None):

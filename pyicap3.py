@@ -11,8 +11,9 @@ import sys
 import time
 import random
 import socket
-import urlparse
-import SocketServer
+import urllib.parse
+import socketserver
+import collections
 
 class ICAPError(Exception):
     """Signals a protocol error"""
@@ -23,14 +24,14 @@ class ICAPError(Exception):
         super(ICAPError, self).__init__(message)
         self.code = code
 
-class ICAPServer(SocketServer.TCPServer):
+class ICAPServer(socketserver.TCPServer):
     """ICAP Server
 
     This is a simple TCPServer, that allows address reuse
     """
     allow_reuse_address = 1
 
-class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
+class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
     """ICAP request handler base class.
 
     You have to subclass it and provide methods for each service
@@ -127,17 +128,17 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
     def _read_status(self):
         """Read a HTTP or ICAP status line from input stream"""
-        return self.rfile.readline().strip().split(' ', 2)
+        return self.rfile.readline().strip().decode('utf-8').split(' ', 2)
 
     def _read_request(self):
         """Read a HTTP or ICAP request line from input stream"""
-        return self.rfile.readline().strip().split(' ', 2)
+        return self.rfile.readline().strip().decode('utf-8').split(' ', 2)
 
     def _read_headers(self):
         """Read a sequence of header lines"""
         headers = {}
         while True:
-            line = self.rfile.readline().strip()
+            line = self.rfile.readline().decode('utf-8').strip()
             if line == '':
                 break
             k, v = line.split(':', 1)
@@ -158,7 +159,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             self.eob = True
             return ''
 
-        line = self.rfile.readline()
+        line = self.rfile.readline().decode('utf-8') 
         if line == '':
             # Connection was probably closed
             self.eob = True
@@ -203,6 +204,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         can safely be called again.
         """
         if self.ieof:
+            print("in cont(self)")
             raise ICAPError(500, 'Tried to continue on ieof condition')
 
         self.wfile.write('ICAP/1.0 100 Continue\r\n\r\n')
@@ -272,16 +274,13 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         if not has_body:
             enc_body = 'null-body='
 
-        if not self.icap_headers.has_key('ISTag'):
-            self.set_icap_header('ISTag', ''.join(map(
-                lambda x: random.choice('ABCDIFGHIJabcdefghij1234567890'),
-                xrange(32)
-            )))
+        if 'ISTag' not in self.icap_headers:
+            self.set_icap_header('ISTag', ''.join([random.choice('ABCDIFGHIJabcdefghij1234567890') for x in range(32)]))
 
-        if not self.icap_headers.has_key('Date'):
+        if 'Date' not in self.icap_headers:
             self.set_icap_header('Date', self.date_time_string())
 
-        if not self.icap_headers.has_key('Server'):
+        if 'Server' not in self.icap_headers:
             self.set_icap_header('Server', self.version_string())
 
         enc_header_str = enc_req_stat
@@ -309,8 +308,8 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         icap_header_str += '\r\n'
 
         self.wfile.write(
-            self.icap_response + '\r\n' +
-            icap_header_str + enc_header_str
+            bytes(self.icap_response + '\r\n' +
+            icap_header_str + enc_header_str,'utf-8')
         )
 
 
@@ -380,28 +379,28 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
                 self.encapsulated[k] = int(v)
 
         self.preview = self.headers.get('preview', [None])[0]
-        self.allow = map(lambda x: x.strip(), self.headers.get('allow', [''])[0].split(','))
+        self.allow = [x.strip() for x in self.headers.get('allow', [''])[0].split(',')]
 
         if self.command == 'REQMOD':
-            if self.encapsulated.has_key('req-hdr'):
+            if 'req-hdr' in self.encapsulated:
                 self.enc_req = self._read_request()
                 self.enc_req_headers = self._read_headers()
-            if self.encapsulated.has_key('req-body'):
+            if 'req-body' in self.encapsulated:
                 self.has_body = True
         elif self.command == 'RESPMOD':
-            if self.encapsulated.has_key('req-hdr'):
+            if 'req-hdr' in self.encapsulated:
                 self.enc_req = self._read_request()
                 self.enc_req_headers = self._read_headers()
-            if self.encapsulated.has_key('res-hdr'):
+            if 'res-hdr' in self.encapsulated:
                 self.enc_res_status = self._read_status()
                 self.enc_res_headers = self._read_headers()
-            if self.encapsulated.has_key('res-body'):
+            if 'res-body' in self.encapsulated:
                 self.has_body = True
         # Else: OPTIONS. No encapsulation.
 
         # Parse service name
         # TODO: document "url routing"
-        self.servicename = urlparse.urlparse(self.request_uri)[2].strip('/')
+        self.servicename = urllib.parse.urlparse(self.request_uri)[2].strip('/')
 
     def handle(self):
         """Handles a connection
@@ -445,7 +444,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         self.icap_response_code = None
 
         try:
-            self.raw_requestline = self.rfile.readline(65537)
+            self.raw_requestline = self.rfile.readline(65537).decode('utf-8')
 
             if not self.raw_requestline:
                 self.close_connection = True
@@ -455,22 +454,23 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
 
             mname = self.servicename + '_' + self.command
             if not hasattr(self, mname):
+                print(mname," not found")
                 raise ICAPError(404)
 
             method = getattr(self, mname)
-            if not callable(method):
+            if not isinstance(method, collections.Callable):
                 raise ICAPError(404)
-
             method()
             self.wfile.flush()
             self.log_request(self.icap_response_code)
-        except socket.timeout, e:
+        except socket.timeout as e:
             self.log_error("Request timed out: %r", e)
             self.close_connection = 1
-        except ICAPError, e:
+        except ICAPError as e:
             self.send_error(e.code, e.message)
-        except:
-            self.send_error(500)
+        """except:
+            print("in handle_one_request")
+            self.send_error(500)"""
 
     def send_error(self, code, message=None):
         """Send and log an error reply.
@@ -486,12 +486,12 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         """
 
         try:
-            short, long = self._responses[code]
+            short, int = self._responses[code]
         except KeyError:
-            short, long = '???', '???'
+            short, int = '???', '???'
         if message is None:
             message = short
-        explain = long
+        explain = int
         self.log_error("code %d, message %s", code, message)
 
         # No encapsulation
@@ -515,12 +515,12 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         """
 
         try:
-            short, long = self._responses[code]
+            short, int = self._responses[code]
         except KeyError:
-            short, long = '???', '???'
+            short, int = '???', '???'
         if message is None:
             message = short
-        explain = long
+        explain = int
 
         # No encapsulation
         self.enc_req = None

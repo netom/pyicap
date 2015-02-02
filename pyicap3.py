@@ -128,17 +128,17 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
 
     def _read_status(self):
         """Read a HTTP or ICAP status line from input stream"""
-        return self.rfile.readline().strip().decode('utf-8').split(' ', 2)
+        return self.rfile.readline().strip().decode('ascii').split(' ', 2)
 
     def _read_request(self):
         """Read a HTTP or ICAP request line from input stream"""
-        return self.rfile.readline().strip().decode('utf-8').split(' ', 2)
+        return self.rfile.readline().strip().decode('ascii').split(' ', 2)
 
     def _read_headers(self):
         """Read a sequence of header lines"""
         headers = {}
         while True:
-            line = self.rfile.readline().decode('utf-8').strip()
+            line = self.rfile.readline().decode('ascii').strip()
             if line == '':
                 break
             k, v = line.split(':', 1)
@@ -159,7 +159,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
             self.eob = True
             return ''
 
-        line = self.rfile.readline().decode('utf-8') 
+        line = self.rfile.readline().decode('ascii') 
         if line == '':
             # Connection was probably closed
             self.eob = True
@@ -185,7 +185,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
         if value == '':
             self.eob = True
 
-        return value
+        return value.decode('ascii')
 
     def write_chunk(self, data):
         """Write a chunk of data
@@ -194,7 +194,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
         be written.
         """
         l = hex(len(data))[2:]
-        self.wfile.write(l + '\r\n' + data + '\r\n')
+        self.wfile.write(bytes(l + '\r\n' + data + '\r\n','ascii'))
 
     def cont(self):
         """Send a 100 continue reply
@@ -204,10 +204,9 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
         can safely be called again.
         """
         if self.ieof:
-            print("in cont(self)")
             raise ICAPError(500, 'Tried to continue on ieof condition')
 
-        self.wfile.write('ICAP/1.0 100 Continue\r\n\r\n')
+        self.wfile.write(bytes('ICAP/1.0 100 Continue\r\n\r\n','ascii'))
 
         self.eob = False
 
@@ -309,7 +308,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
 
         self.wfile.write(
             bytes(self.icap_response + '\r\n' +
-            icap_header_str + enc_header_str,'utf-8')
+            icap_header_str + enc_header_str,'ascii')
         )
 
 
@@ -380,6 +379,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
 
         self.preview = self.headers.get('preview', [None])[0]
         self.allow = [x.strip() for x in self.headers.get('allow', [''])[0].split(',')]
+        self.client_ip = self.headers.get('x-client-ip', 'No X-Client-IP header')[0]
 
         if self.command == 'REQMOD':
             if 'req-hdr' in self.encapsulated:
@@ -435,6 +435,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
         self.methos = None
         self.preview = None
         self.allow = set()
+        self.client_ip = None
 
         self.icap_headers = {}
         self.enc_headers = {}
@@ -444,7 +445,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
         self.icap_response_code = None
 
         try:
-            self.raw_requestline = self.rfile.readline(65537).decode('utf-8')
+            self.raw_requestline = self.rfile.readline(65537).decode('ascii')
 
             if not self.raw_requestline:
                 self.close_connection = True
@@ -469,7 +470,6 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
         except ICAPError as e:
             self.send_error(e.code, e.message)
         """except:
-            print("in handle_one_request")
             self.send_error(500)"""
 
     def send_error(self, code, message=None):
@@ -643,6 +643,6 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
             self.send_headers(True)
             while True:
                 chunk = self.read_chunk()
-                self.write_chunk(chunk)
+                self.write_chunk(chunk.decode('ascii'))
                 if chunk == '':
                     break

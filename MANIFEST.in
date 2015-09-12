@@ -1,0 +1,2 @@
+include  *.py *.md README .gitignore
+recursive-include examples *.py

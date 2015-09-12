@@ -464,10 +464,10 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             method()
             self.wfile.flush()
             self.log_request(self.icap_response_code)
-        except socket.timeout, e:
+        except socket.timeout as e:
             self.log_error("Request timed out: %r", e)
             self.close_connection = 1
-        except ICAPError, e:
+        except ICAPError as e:
             self.send_error(e.code, e.message)
         except:
             self.send_error(500)

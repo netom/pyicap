@@ -240,9 +240,12 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         """
         self.enc_headers[header] = self.enc_headers.get(header, []) + [value]
 
-    def set_icap_response(self, code):
+    def set_icap_response(self, code, message=None):
         """Sets the ICAP response's status line and response code"""
-        self.icap_response = 'ICAP/1.0 ' + str(code) + ' ' + self._responses[code][0]
+        if message:
+            self.icap_response = 'ICAP/1.0 ' + str(code) + ' ' + message
+        else:
+            self.icap_response = 'ICAP/1.0 ' + str(code) + ' ' + self._responses[code][0]
         self.icap_response_code = code
 
     def set_icap_header(self, header, value):
@@ -498,7 +501,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         self.enc_req = None
         self.enc_res_stats = None
 
-        self.set_icap_response(code) # TODO: message
+        self.set_icap_response(code, message=message)
         self.set_icap_header('Connection', 'close') # TODO: why?
         self.send_headers()
 
@@ -525,7 +528,7 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
         # No encapsulation
         self.enc_req = None
 
-        self.set_icap_response(200) # TODO: message
+        self.set_icap_response(200, message=message)
         self.set_enc_status('HTTP/1.1 %s %s' % (str(code), message))
         self.set_enc_header('Content-Type', contenttype)
         self.set_enc_header('Content-Length', str(len(body)))

@@ -11,6 +11,7 @@ import sys
 import time
 import random
 import socket
+import string
 import urlparse
 import SocketServer
 
@@ -273,10 +274,10 @@ class BaseICAPRequestHandler(SocketServer.StreamRequestHandler):
             enc_body = 'null-body='
 
         if not self.icap_headers.has_key('ISTag'):
-            self.set_icap_header('ISTag', ''.join(map(
-                lambda x: random.choice('ABCDIFGHIJabcdefghij1234567890'),
-                xrange(32)
-            )))
+            self.set_icap_header('ISTag', '"{0}"'.format(''.join(map(
+                lambda x: random.choice(string.ascii_letters + string.digits),
+                xrange(30)
+            ))))
 
         if not self.icap_headers.has_key('Date'):
             self.set_icap_header('Date', self.date_time_string())

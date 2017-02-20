@@ -129,6 +129,53 @@ Creating the test web page
 
 Configuring Squid for testing PyICAP
 ------------------------------------
+To configure Squid to use your ICAP script make these changes to your 
+`sqiud.conf` that possibly will reside in `/etc/squid/` or `/etc/squid3/`.
+Further information about the config options may be in the comments in 
+the config file.
+
+* First you want to enable ICAP.
+```
+icap_enable on
+```
+This directive is pretty self-explanatory.
+
+* Then you want to specify your service.
+```
+icap_service id vectoring_point uri [option ...]
+```
+Now we configure the specifics of our service.
+First we assign an `id`. This id will be used to direct traffic to this 
+specific service.
+Next comes the `vectoring_point`. This may be either of 
+`{req,resp}mod_{pre,post}cache`. This specifies at with point of transaction
+processing this service should be activated. 
+Then comes the `URI` which will specify the server, port and service-path. It
+looks something like `icap://servername:port/servicepath`.
+  
+So if we want to implement a simple script that replaces strings in websites
+we will use a line like:
+```
+icap_service my_service respmod_precache icap://localhost:13440/test
+```
+If one now sends a request via the Squid proxy the `test_REQMOD(self)` 
+method will get invoked.
+
+* Next we have to insert the service
+```
+adaptation_access service_name allow|deny [!]aclname...
+```
+This directive specifies when a service will get invoked.
+As `service_name` we use the `id` from above.
+To selectively use this service apply ACLs to this directive.
+If an ACL matches an "allow" rule this service is used to for this
+transaction. If a "deny" rule matches, no adaptation service is activated.
+
+To filter all response traffic use:
+```
+adaptation_access my_service allow all
+```
+
 
 Setting up your browser
 -----------------------

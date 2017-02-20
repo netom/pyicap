@@ -3,6 +3,7 @@
 
 import random
 import SocketServer
+import tempfile
 
 from pyicap import *
 
@@ -23,6 +24,13 @@ class ICAPHandler(BaseICAPRequestHandler):
         self.set_icap_header('Options-TTL', '3600')
         self.send_headers(False)
 
+    def read_into(self, f):
+        while True:
+            chunk = self.read_chunk()
+            if chunk == '':
+                return
+            f.write(chunk)
+        
     def example_RESPMOD(self):
         #while True:
         #    chunk = self.read_chunk()
@@ -37,42 +45,21 @@ class ICAPHandler(BaseICAPRequestHandler):
             for v in self.enc_res_headers[h]:
                 self.set_enc_header(h, v)
 
-        # The code below is only copying some data.
-        # Very convoluted for such a simple task.
-        # This thing needs a serious redesign.
-        # Well, without preview, it'd be quite simple...
         if not self.has_body:
             self.send_headers(False)
             return
-        if self.preview:
-            prevbuf = ''
-            while True:
-                chunk = self.read_chunk()
-                if chunk == '':
-                    break
-                prevbuf += chunk
-            if self.ieof:
-                self.send_headers(True)
-                if len(prevbuf) > 0:
-                    self.write_chunk(prevbuf)
-                self.write_chunk('')
-                return
-            self.cont()
-            self.send_headers(True)
-            if len(prevbuf) > 0:
-                self.write_chunk(prevbuf)
-            while True:
-                chunk = self.read_chunk()
-                self.write_chunk(chunk)
-                if chunk == '':
-                    break
-        else:
-            self.send_headers(True)
-            while True:
-                chunk = self.read_chunk()
-                self.write_chunk(chunk)
-                if chunk == '':
-                    break
+        
+        # Read everything from the response to a temporary file
+        with tempfile.NamedTemporaryFile(prefix='pyicap.', suffix='.tmp') as upstream:
+            self.read_into(upstream)
+            if self.preview and not self.ieof:
+                self.cont()
+                self.read_into(upstream)
+            upstream.seek(0)
+            
+            # And write it to downstream
+            content = upstream.read()
+            self.write_chunk(cont)
 
 port = 13440
 

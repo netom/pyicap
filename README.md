@@ -1,4 +1,4 @@
-pyicap3
+pyicap
 ======
 
 A Python 3 framework for writing ICAP servers
@@ -16,10 +16,9 @@ package:
 
 pip3/easy_install doesn't know about this yet
 
-~~
 You can also install with pip or easy-install:
 
-    sudo pip install pyicap~~
+    sudo pip install pyicap
 
 What is ICAP?
 -------------

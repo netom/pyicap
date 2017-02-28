@@ -3,10 +3,6 @@
 For the ICAP specification, see RFC 3507
 """
 
-__version__ = "1.0"
-
-__all__ = ['ICAPServer', 'BaseICAPRequestHandler', 'ICAPError']
-
 import sys
 import time
 import random
@@ -14,6 +10,11 @@ import socket
 import urllib.parse
 import socketserver
 import collections
+
+
+__version__ = "1.0"
+__all__ = ['ICAPServer', 'BaseICAPRequestHandler', 'ICAPError']
+
 
 class ICAPError(Exception):
     """Signals a protocol error"""
@@ -187,7 +188,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
 
         return value.decode('ascii')
 
-    def write_chunk(self, data):
+    def write_chunk(self, data=''):
         """Write a chunk of data
 
         When finished writing, an empty chunk with data='' must
@@ -195,6 +196,10 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
         """
         l = hex(len(data))[2:]
         self.wfile.write(bytes(l + '\r\n' + data + '\r\n','ascii'))
+
+    # Alias to match documentation, and also to match naming convention of other
+    # methods
+    send_chunk = write_chunk
 
     def cont(self):
         """Send a 100 continue reply

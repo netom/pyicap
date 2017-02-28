@@ -278,8 +278,11 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
         if not has_body:
             enc_body = 'null-body='
 
-        if 'ISTag' not in self.icap_headers:
-            self.set_icap_header('ISTag', ''.join([random.choice('ABCDIFGHIJabcdefghij1234567890') for x in range(32)]))
+        if not self.icap_headers.has_key('ISTag'):
+            self.set_icap_header('ISTag', '"{0}"'.format(''.join(map(
+                lambda x: random.choice(string.ascii_letters + string.digits),
+                xrange(30)
+            ))))
 
         if 'Date' not in self.icap_headers:
             self.set_icap_header('Date', self.date_time_string())

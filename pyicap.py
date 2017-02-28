@@ -8,9 +8,18 @@ import time
 import random
 import socket
 import string
-import urllib.parse
-import socketserver
 import collections
+
+from six.moves.urllib.parse import urlparse
+
+try:
+    from socketserver import (
+        TCPServer, StreamRequestHandler
+    )
+except ImportError:
+    from SocketServer import (
+        TCPServer, StreamRequestHandler
+    )
 
 
 __version__ = "1.0"
@@ -27,7 +36,7 @@ class ICAPError(Exception):
         self.code = code
 
 
-class ICAPServer(socketserver.TCPServer):
+class ICAPServer(TCPServer):
     """ICAP Server
 
     This is a simple TCPServer, that allows address reuse
@@ -35,7 +44,7 @@ class ICAPServer(socketserver.TCPServer):
     allow_reuse_address = 1
 
 
-class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
+class BaseICAPRequestHandler(StreamRequestHandler):
     """ICAP request handler base class.
 
     You have to subclass it and provide methods for each service
@@ -417,8 +426,7 @@ class BaseICAPRequestHandler(socketserver.StreamRequestHandler):
 
         # Parse service name
         # TODO: document "url routing"
-        self.servicename = urllib.parse.urlparse(
-            self.request_uri)[2].strip('/')
+        self.servicename = urlparse(self.request_uri)[2].strip('/')
 
     def handle(self):
         """Handles a connection

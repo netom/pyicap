@@ -2,12 +2,12 @@
 # -*- coding: utf8 -*-
 
 import random
-import SocketServer
+import socketserver
 import tempfile
 
 from pyicap import *
 
-class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
+class ThreadingSimpleServer(socketserver.ThreadingMixIn, ICAPServer):
     pass
 
 class ICAPHandler(BaseICAPRequestHandler):
@@ -50,6 +50,7 @@ class ICAPHandler(BaseICAPRequestHandler):
             return
         
         # Read everything from the response to a temporary file
+        # This file can be placed onto a tmpfs filesystem for more performance
         with tempfile.NamedTemporaryFile(prefix='pyicap.', suffix='.tmp') as upstream:
             self.read_into(upstream)
             if self.preview and not self.ieof:
@@ -68,4 +69,4 @@ try:
     while 1:
         server.handle_request()
 except KeyboardInterrupt:
-    print "Finished"
+    print("Finished")

@@ -2,11 +2,11 @@
 # -*- coding: utf8 -*-
 
 import random
-import SocketServer
+import socketserver
 
 from pyicap import *
 
-class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
+class ThreadingSimpleServer(socketserver.ThreadingMixIn, ICAPServer):
     pass
 
 class ICAPHandler(BaseICAPRequestHandler):
@@ -44,4 +44,4 @@ try:
     while 1:
         server.handle_request()
 except KeyboardInterrupt:
-    print "Finished"
+    print("Finished")

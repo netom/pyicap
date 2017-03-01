@@ -259,9 +259,10 @@ class BaseICAPRequestHandler(StreamRequestHandler):
 
     def set_icap_response(self, code, message=None):
         """Sets the ICAP response's status line and response code"""
-        if message is None:
-            message = self._responses[code][0]
-        self.icap_response = 'ICAP/1.0 ' + str(code) + ' ' + message
+        if message:
+            self.icap_response = 'ICAP/1.0 ' + str(code) + ' ' + message
+        else:
+            self.icap_response = 'ICAP/1.0 ' + str(code) + ' ' + self._responses[code][0]
         self.icap_response_code = code
 
     def set_icap_header(self, header, value):
@@ -520,7 +521,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         self.enc_res_stats = None
 
         self.set_icap_response(code, message=message)
-        self.set_icap_header('Connection', 'close')  # TODO: why?
+        self.set_icap_header('Connection', 'close') # TODO: why?
         self.send_headers()
 
     def send_enc_error(self, code, message=None, body='',

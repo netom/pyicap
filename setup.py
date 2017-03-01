@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-from distutils.core import setup, Extension
+from distutils.core import setup
 
 setup(
     name='pyicap',
-    version='1.0a8',
+    version='1.0b',
     description='A framework for writing ICAP servers',
     author='FÁBIÁN Tamás László',
     author_email='giganetom@gmail.com',
@@ -15,7 +15,7 @@ setup(
     platforms='OS Independent',
     py_modules=['pyicap'],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Plugins',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',

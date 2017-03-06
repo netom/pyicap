@@ -2,9 +2,14 @@
 # -*- coding: utf8 -*-
 
 import random
-import socketserver
 
-from pyicap3 import *
+try:
+    import socketserver
+except ImportError:
+    import SocketServer
+    socketserver = SocketServer
+
+from pyicap import *
 
 class ThreadingSimpleServer(socketserver.ThreadingMixIn, ICAPServer):
     pass

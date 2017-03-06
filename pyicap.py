@@ -10,7 +10,11 @@ import socket
 import string
 import collections
 
-from six.moves.urllib.parse import urlparse
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 try:
     from socketserver import (
@@ -31,7 +35,7 @@ class ICAPError(Exception):
     def __init__(self, code=500, message=None):
         if message is None:
             message = BaseICAPRequestHandler._responses[code]
-
+        self.message = message
         super(ICAPError, self).__init__(message)
         self.code = code
 
@@ -140,17 +144,17 @@ class BaseICAPRequestHandler(StreamRequestHandler):
 
     def _read_status(self):
         """Read a HTTP or ICAP status line from input stream"""
-        return self.rfile.readline().strip().decode('ascii').split(' ', 2)
+        return self.rfile.readline().strip().split(b' ', 2)
 
     def _read_request(self):
         """Read a HTTP or ICAP request line from input stream"""
-        return self.rfile.readline().strip().decode('ascii').split(' ', 2)
+        return self.rfile.readline().strip().split(b' ', 2)
 
     def _read_headers(self):
         """Read a sequence of header lines"""
         headers = {}
         while True:
-            line = self.rfile.readline().decode('ascii').strip()
+            line = self.rfile.readline().strip()
             if line == '':
                 break
             k, v = line.split(':', 1)
@@ -169,13 +173,13 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         # Don't try to read when there's no body
         if not self.has_body or self.eob:
             self.eob = True
-            return ''
+            return b''
 
-        line = self.rfile.readline().decode('ascii')
-        if line == '':
+        line = self.rfile.readline()
+        if line == b'':
             # Connection was probably closed
             self.eob = True
-            return ''
+            return b''
 
         line = line.strip()
 
@@ -194,19 +198,19 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         value = self.rfile.read(chunk_size)
         self.rfile.read(2)
 
-        if value == '':
+        if value == b'':
             self.eob = True
 
-        return value.decode('ascii')
+        return value
 
-    def write_chunk(self, data=''):
+    def write_chunk(self, data=b''):
         """Write a chunk of data
 
         When finished writing, an empty chunk with data='' must
         be written.
         """
         l = hex(len(data))[2:]
-        self.wfile.write(bytes(l + '\r\n' + data + '\r\n', 'ascii'))
+        self.wfile.write(l + b'\r\n' + data + b'\r\n')
 
     # Alias to match documentation, and also to match naming convention of
     # other methods
@@ -259,10 +263,8 @@ class BaseICAPRequestHandler(StreamRequestHandler):
 
     def set_icap_response(self, code, message=None):
         """Sets the ICAP response's status line and response code"""
-        if message:
-            self.icap_response = 'ICAP/1.0 ' + str(code) + ' ' + message
-        else:
-            self.icap_response = 'ICAP/1.0 ' + str(code) + ' ' + self._responses[code][0]
+        self.icap_response = b'ICAP/1.0 ' + str(code).encode('ascii') + b' ' + \
+            (message if message else self._responses[code][0])
         self.icap_response_code = code
 
     def set_icap_header(self, header, value):
@@ -307,14 +309,14 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         enc_header_str = enc_req_stat
         for k in self.enc_headers:
             for v in self.enc_headers[k]:
-                enc_header_str += k + ': ' + v + '\r\n'
+                enc_header_str += k + ': ' + v + b'\r\n'
         if enc_header_str != '':
-            enc_header_str += '\r\n'
+            enc_header_str += b'\r\n'
 
         body_offset = len(enc_header_str)
 
         if enc_header:
-            enc = enc_header + ', ' + enc_body + str(body_offset)
+            enc = enc_header + ', ' + enc_body + str(body_offset).encode('ascii')
             self.set_icap_header('Encapsulated', enc)
 
         icap_header_str = ''
@@ -326,12 +328,11 @@ class BaseICAPRequestHandler(StreamRequestHandler):
                 if k.lower() == 'connection' and v.lower() == 'keep-alive':
                     self.close_connection = False
 
-        icap_header_str += '\r\n'
+        icap_header_str += b'\r\n'
 
-        self.wfile.write(bytes(
-            self.icap_response + '\r\n' + icap_header_str + enc_header_str,
-            'ascii'
-        ))
+        self.wfile.write(
+            self.icap_response + b'\r\n' + icap_header_str + enc_header_str,
+        )
 
     def parse_request(self):
         """Parse a request (internal).
@@ -349,7 +350,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         # Default behavior is to leave connection open
         self.close_connection = False
 
-        requestline = self.raw_requestline.rstrip('\r\n')
+        requestline = self.raw_requestline.rstrip(b'\r\n')
         self.requestline = requestline
 
         words = requestline.split()
@@ -472,7 +473,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         self.icap_response_code = None
 
         try:
-            self.raw_requestline = self.rfile.readline(65537).decode('ascii')
+            self.raw_requestline = self.rfile.readline(65537)
 
             if not self.raw_requestline:
                 self.close_connection = True
@@ -495,9 +496,9 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             self.log_error("Request timed out: %r", e)
             self.close_connection = 1
         except ICAPError as e:
-            self.send_error(e.code, e.message)
-        """except:
-            self.send_error(500)"""
+            self.send_error(e.code, e.message.encode('utf-8'))
+        #except:
+        #    self.send_error(500)
 
     def send_error(self, code, message=None):
         """Send and log an error reply.
@@ -541,9 +542,9 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         self.enc_req = None
 
         self.set_icap_response(200, message=message)
-        self.set_enc_status('HTTP/1.1 %s %s' % (str(code), message))
+        self.set_enc_status('HTTP/1.1 %s %s' % (str(code).encode('ascii'), message))
         self.set_enc_header('Content-Type', contenttype)
-        self.set_enc_header('Content-Length', str(len(body)))
+        self.set_enc_header('Content-Length', str(len(body)).encode('ascii'))
         self.send_headers(has_body=True)
         if len(body) > 0:
             self.write_chunk(body)
@@ -556,7 +557,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         """
 
         self.log_message('"%s" %s %s',
-                         self.requestline, str(code), str(size))
+                         self.requestline, str(code).encode('ascii'), str(size).encode('ascii'))
 
     def log_error(self, format, *args):
         """Log an error.
@@ -658,6 +659,6 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             self.send_headers(True)
             while True:
                 chunk = self.read_chunk()
-                self.write_chunk(chunk.decode('ascii'))
+                self.write_chunk(chunk)
                 if chunk == '':
                     break

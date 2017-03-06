@@ -2,8 +2,13 @@
 # -*- coding: utf8 -*-
 
 import random
-import socketserver
 import tempfile
+
+try:
+    import socketserver
+except ImportError:
+    import SocketServer
+    socketserver = SocketServer
 
 from pyicap import *
 
@@ -32,12 +37,6 @@ class ICAPHandler(BaseICAPRequestHandler):
             f.write(chunk)
         
     def example_RESPMOD(self):
-        #while True:
-        #    chunk = self.read_chunk()
-        #    if chunk == '':
-        #        break
-        #self.send_enc_error(500, body='<html><head><title>Whoops</title></head><body><h1>500 ICAP meditation</h1></body></html>')
-        #return
         self.set_icap_response(200)
 
         self.set_enc_status(' '.join(self.enc_res_status))

@@ -2,7 +2,12 @@
 # -*- coding: utf8 -*-
 
 import random
-import socketserver
+
+try:
+    import socketserver
+except ImportError:
+    import SocketServer
+    socketserver = SocketServer
 
 from pyicap import *
 

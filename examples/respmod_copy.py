@@ -19,27 +19,27 @@ class ICAPHandler(BaseICAPRequestHandler):
 
     def example_OPTIONS(self):
         self.set_icap_response(200)
-        self.set_icap_header('Methods', 'RESPMOD')
-        self.set_icap_header('Service', 'PyICAP Server 1.0')
-        self.set_icap_header('Preview', '0')
-        self.set_icap_header('Transfer-Preview', '*')
-        self.set_icap_header('Transfer-Ignore', 'jpg,jpeg,gif,png,swf,flv')
-        self.set_icap_header('Transfer-Complete', '')
-        self.set_icap_header('Max-Connections', '100')
-        self.set_icap_header('Options-TTL', '3600')
+        self.set_icap_header(b'Methods', b'RESPMOD')
+        self.set_icap_header(b'Service', b'PyICAP Server 1.0')
+        self.set_icap_header(b'Preview', b'0')
+        self.set_icap_header(b'Transfer-Preview', b'*')
+        self.set_icap_header(b'Transfer-Ignore', b'jpg,jpeg,gif,png,swf,flv')
+        self.set_icap_header(b'Transfer-Complete', b'')
+        self.set_icap_header(b'Max-Connections', b'100')
+        self.set_icap_header(b'Options-TTL', b'3600')
         self.send_headers(False)
 
     def read_into(self, f):
         while True:
             chunk = self.read_chunk()
-            if chunk == '':
+            if chunk == b'':
                 return
             f.write(chunk)
         
     def example_RESPMOD(self):
         self.set_icap_response(200)
 
-        self.set_enc_status(' '.join(self.enc_res_status))
+        self.set_enc_status(b' '.join(self.enc_res_status))
         for h in self.enc_res_headers:
             for v in self.enc_res_headers[h]:
                 self.set_enc_header(h, v)
@@ -59,11 +59,11 @@ class ICAPHandler(BaseICAPRequestHandler):
             
             # And write it to downstream
             content = upstream.read()
-            self.write_chunk(cont)
+            self.write_chunk(content)
 
 port = 13440
 
-server = ThreadingSimpleServer(('', port), ICAPHandler)
+server = ThreadingSimpleServer((b'', port), ICAPHandler)
 try:
     while 1:
         server.handle_request()

@@ -18,8 +18,8 @@ class ICAPHandler(BaseICAPRequestHandler):
 
     def example_OPTIONS(self):
         self.set_icap_response(200)
-        self.set_icap_header('Methods', 'RESPMOD')
-        self.set_icap_header('Preview', '0')
+        self.set_icap_header(b'Methods', b'RESPMOD')
+        self.set_icap_header(b'Preview', b'0')
         self.send_headers(False)
 
     def example_RESPMOD(self):
@@ -27,7 +27,7 @@ class ICAPHandler(BaseICAPRequestHandler):
 
 port = 13440
 
-server = ThreadingSimpleServer(('', port), ICAPHandler)
+server = ThreadingSimpleServer((b'', port), ICAPHandler)
 try:
     while 1:
         server.handle_request()

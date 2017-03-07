@@ -18,16 +18,16 @@ class ICAPHandler(BaseICAPRequestHandler):
 
     def example_OPTIONS(self):
         self.set_icap_response(200)
-        self.set_icap_header('Methods', 'REQMOD')
-        self.set_icap_header('Service', 'PyICAP Server 1.0')
+        self.set_icap_header(b'Methods', b'REQMOD')
+        self.set_icap_header(b'Service', b'PyICAP Server 1.0')
         self.send_headers(False)
 
     def example_REQMOD(self):
         self.set_icap_response(200)
 
         enc_req = self.enc_req[:]
-        enc_req[1] = 'http://gravatar.com/avatar/864167d82d60f126e4225e53953461a4'
-        self.set_enc_request(' '.join(enc_req))
+        enc_req[1] = b'http://gravatar.com/avatar/864167d82d60f126e4225e53953461a4'
+        self.set_enc_request(b' '.join(enc_req))
         for h in self.enc_req_headers:
             for v in self.enc_req_headers[h]:
                 self.set_enc_header(h, v)
@@ -39,7 +39,7 @@ class ICAPHandler(BaseICAPRequestHandler):
 
         while True:
             chunk = self.read_chunk()
-            if chunk == '':
+            if chunk == b'':
                 break
 
 port = 13440

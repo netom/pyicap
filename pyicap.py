@@ -63,69 +63,69 @@ class BaseICAPRequestHandler(StreamRequestHandler):
     # form {code: (shortmessage, longmessage)}.
     # See RFC 2616 and RFC 3507
     _responses = {
-        100: ('Continue', 'Request received, please continue'),
-        101: ('Switching Protocols',
-              'Switching to new protocol; obey Upgrade header'),
+        100: (b'Continue', b'Request received, please continue'),
+        101: (b'Switching Protocols',
+              b'Switching to new protocol; obey Upgrade header'),
 
-        200: ('OK', 'Request fulfilled, document follows'),
-        201: ('Created', 'Document created, URL follows'),
-        202: ('Accepted',
-              'Request accepted, processing continues off-line'),
-        203: ('Non-Authoritative Information', 'Request fulfilled from cache'),
-        204: ('No Content', 'Request fulfilled, nothing follows'),
-        205: ('Reset Content', 'Clear input form for further input.'),
-        206: ('Partial Content', 'Partial content follows.'),
+        200: (b'OK', b'Request fulfilled, document follows'),
+        201: (b'Created', b'Document created, URL follows'),
+        202: (b'Accepted',
+              b'Request accepted, processing continues off-line'),
+        203: (b'Non-Authoritative Information', b'Request fulfilled from cache'),
+        204: (b'No Content', b'Request fulfilled, nothing follows'),
+        205: (b'Reset Content', b'Clear input form for further input.'),
+        206: (b'Partial Content', b'Partial content follows.'),
 
-        300: ('Multiple Choices',
-              'Object has several resources -- see URI list'),
-        301: ('Moved Permanently', 'Object moved permanently -- see URI list'),
-        302: ('Found', 'Object moved temporarily -- see URI list'),
-        303: ('See Other', 'Object moved -- see Method and URL list'),
-        304: ('Not Modified',
-              'Document has not changed since given time'),
-        305: ('Use Proxy',
-              'You must use proxy specified in Location to access this '
-              'resource.'),
-        307: ('Temporary Redirect',
-              'Object moved temporarily -- see URI list'),
+        300: (b'Multiple Choices',
+              b'Object has several resources -- see URI list'),
+        301: (b'Moved Permanently', b'Object moved permanently -- see URI list'),
+        302: (b'Found', b'Object moved temporarily -- see URI list'),
+        303: (b'See Other', b'Object moved -- see Method and URL list'),
+        304: (b'Not Modified',
+              b'Document has not changed since given time'),
+        305: (b'Use Proxy',
+              b'You must use proxy specified in Location to access this '
+              b'resource.'),
+        307: (b'Temporary Redirect',
+              b'Object moved temporarily -- see URI list'),
 
-        400: ('Bad Request',
-              'Bad request syntax or unsupported method'),
-        401: ('Unauthorized',
-              'No permission -- see authorization schemes'),
-        402: ('Payment Required',
-              'No payment -- see charging schemes'),
-        403: ('Forbidden',
-              'Request forbidden -- authorization will not help'),
-        404: ('Not Found', 'Nothing matches the given URI'),
-        405: ('Method Not Allowed',
-              'Specified method is invalid for this resource.'),
-        406: ('Not Acceptable', 'URI not available in preferred format.'),
-        407: ('Proxy Authentication Required', 'You must authenticate with '
-              'this proxy before proceeding.'),
-        408: ('Request Timeout', 'Request timed out; try again later.'),
-        409: ('Conflict', 'Request conflict.'),
-        410: ('Gone',
-              'URI no longer exists and has been permanently removed.'),
-        411: ('Length Required', 'Client must specify Content-Length.'),
-        412: ('Precondition Failed', 'Precondition in headers is false.'),
-        413: ('Request Entity Too Large', 'Entity is too large.'),
-        414: ('Request-URI Too Long', 'URI is too long.'),
-        415: ('Unsupported Media Type', 'Entity body in unsupported format.'),
-        416: ('Requested Range Not Satisfiable',
-              'Cannot satisfy request range.'),
-        417: ('Expectation Failed',
-              'Expect condition could not be satisfied.'),
+        400: (b'Bad Request',
+              b'Bad request syntax or unsupported method'),
+        401: (b'Unauthorized',
+              b'No permission -- see authorization schemes'),
+        402: (b'Payment Required',
+              b'No payment -- see charging schemes'),
+        403: (b'Forbidden',
+              b'Request forbidden -- authorization will not help'),
+        404: (b'Not Found', b'Nothing matches the given URI'),
+        405: (b'Method Not Allowed',
+              b'Specified method is invalid for this resource.'),
+        406: (b'Not Acceptable', b'URI not available in preferred format.'),
+        407: (b'Proxy Authentication Required', b'You must authenticate with '
+              b'this proxy before proceeding.'),
+        408: (b'Request Timeout', b'Request timed out; try again later.'),
+        409: (b'Conflict', b'Request conflict.'),
+        410: (b'Gone',
+              b'URI no longer exists and has been permanently removed.'),
+        411: (b'Length Required', 'Client must specify Content-Length.'),
+        412: (b'Precondition Failed', b'Precondition in headers is false.'),
+        413: (b'Request Entity Too Large', b'Entity is too large.'),
+        414: (b'Request-URI Too Long', b'URI is too long.'),
+        415: (b'Unsupported Media Type', b'Entity body in unsupported format.'),
+        416: (b'Requested Range Not Satisfiable',
+              b'Cannot satisfy request range.'),
+        417: (b'Expectation Failed',
+              b'Expect condition could not be satisfied.'),
 
-        500: ('Internal Server Error', 'Server got itself in trouble'),
-        501: ('Not Implemented',
-              'Server does not support this operation'),
-        502: ('Bad Gateway', 'Invalid responses from another server/proxy.'),
-        503: ('Service Unavailable',
-              'The server cannot process the request due to a high load'),
-        504: ('Gateway Timeout',
-              'The gateway server did not receive a timely response'),
-        505: ('Protocol Version Not Supported', 'Cannot fulfill request.'),
+        500: (b'Internal Server Error', b'Server got itself in trouble'),
+        501: (b'Not Implemented',
+              b'Server does not support this operation'),
+        502: (b'Bad Gateway', b'Invalid responses from another server/proxy.'),
+        503: (b'Service Unavailable',
+              b'The server cannot process the request due to a high load'),
+        504: (b'Gateway Timeout',
+              b'The gateway server did not receive a timely response'),
+        505: (b'Protocol Version Not Supported', b'Cannot fulfill request.'),
 
     }
 
@@ -137,10 +137,10 @@ class BaseICAPRequestHandler(StreamRequestHandler):
     # where each string is of the form name[/version].
     _server_version = "BaseICAP/" + __version__
 
-    _weekdayname = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    _weekdayname = [b'Mon', b'Tue', b'Wed', b'Thu', b'Fri', b'Sat', b'Sun']
 
-    _monthname = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
-                  'Sep', 'Oct', 'Nov', 'Dec']
+    _monthname = [None, b'Jan', b'Feb', b'Mar', b'Apr', b'May', b'Jun', b'Jul', b'Aug',
+                  b'Sep', b'Oct', b'Nov', b'Dec']
 
     def _read_status(self):
         """Read a HTTP or ICAP status line from input stream"""
@@ -155,9 +155,9 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         headers = {}
         while True:
             line = self.rfile.readline().strip()
-            if line == '':
+            if line == b'':
                 break
-            k, v = line.split(':', 1)
+            k, v = line.split(b':', 1)
             headers[k.lower()] = headers.get(k.lower(), []) + [v.strip()]
         return headers
 
@@ -183,7 +183,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
 
         line = line.strip()
 
-        arr = line.split(';', 1)
+        arr = line.split(b';', 1)
 
         chunk_size = 0
         try:
@@ -192,7 +192,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             raise ICAPError(400, 'Protocol error, could not read chunk')
 
         # Look for ieof chunk extension
-        if len(arr) > 1 and arr[1].strip() == 'ieof':
+        if len(arr) > 1 and arr[1].strip() == b'ieof':
             self.ieof = True
 
         value = self.rfile.read(chunk_size)
@@ -209,7 +209,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         When finished writing, an empty chunk with data='' must
         be written.
         """
-        l = hex(len(data))[2:]
+        l = bytes(hex(len(data))[2:], 'utf-8')
         self.wfile.write(l + b'\r\n' + data + b'\r\n')
 
     # Alias to match documentation, and also to match naming convention of
@@ -226,7 +226,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         if self.ieof:
             raise ICAPError(500, 'Tried to continue on ieof condition')
 
-        self.wfile.write(bytes('ICAP/1.0 100 Continue\r\n\r\n', 'ascii'))
+        self.wfile.write(bytes('ICAP/1.0 100 Continue\r\n\r\n', 'utf-8'))
 
         self.eob = False
 
@@ -263,7 +263,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
 
     def set_icap_response(self, code, message=None):
         """Sets the ICAP response's status line and response code"""
-        self.icap_response = b'ICAP/1.0 ' + str(code).encode('ascii') + b' ' + \
+        self.icap_response = b'ICAP/1.0 ' + str(code).encode('utf-8') + b' ' + \
             (message if message else self._responses[code][0])
         self.icap_response_code = code
 
@@ -281,51 +281,51 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         of wether an encapsulated message body is present.
         """
         enc_header = None
-        enc_req_stat = ''
+        enc_req_stat = b''
         if self.enc_request is not None:
-            enc_header = 'req-hdr=0'
-            enc_body = 'req-body='
-            enc_req_stat = self.enc_request + '\r\n'
+            enc_header = b'req-hdr=0'
+            enc_body = b'req-body='
+            enc_req_stat = self.enc_request + b'\r\n'
         elif self.enc_status is not None:
-            enc_header = 'res-hdr=0'
-            enc_body = 'res-body='
-            enc_req_stat = self.enc_status + '\r\n'
+            enc_header = b'res-hdr=0'
+            enc_body = b'res-body='
+            enc_req_stat = self.enc_status + b'\r\n'
 
         if not has_body:
-            enc_body = 'null-body='
+            enc_body = b'null-body='
 
-        if 'ISTag' not in self.icap_headers:
-            self.set_icap_header('ISTag', '"{0}"'.format(''.join(map(
+        if b'ISTag' not in self.icap_headers:
+            self.set_icap_header(b'ISTag', bytes('"{0}"'.format(''.join(map(
                 lambda x: random.choice(string.ascii_letters + string.digits),
                 range(30)
-            ))))
+            ))), 'utf-8'))
 
-        if 'Date' not in self.icap_headers:
-            self.set_icap_header('Date', self.date_time_string())
+        if b'Date' not in self.icap_headers:
+            self.set_icap_header(b'Date', bytes(self.date_time_string(), 'utf-8'))
 
-        if 'Server' not in self.icap_headers:
-            self.set_icap_header('Server', self.version_string())
+        if b'Server' not in self.icap_headers:
+            self.set_icap_header(b'Server', bytes(self.version_string(), 'utf-8'))
 
         enc_header_str = enc_req_stat
         for k in self.enc_headers:
             for v in self.enc_headers[k]:
-                enc_header_str += k + ': ' + v + b'\r\n'
-        if enc_header_str != '':
+                enc_header_str += k + b': ' + v + b'\r\n'
+        if enc_header_str != b'':
             enc_header_str += b'\r\n'
 
         body_offset = len(enc_header_str)
 
         if enc_header:
-            enc = enc_header + ', ' + enc_body + str(body_offset).encode('ascii')
-            self.set_icap_header('Encapsulated', enc)
+            enc = enc_header + b', ' + enc_body + str(body_offset).encode('utf-8')
+            self.set_icap_header(b'Encapsulated', enc)
 
-        icap_header_str = ''
+        icap_header_str = b''
         for k in self.icap_headers:
             for v in self.icap_headers[k]:
-                icap_header_str += k + ': ' + v + '\r\n'
-                if k.lower() == 'connection' and v.lower() == 'close':
+                icap_header_str += k + b': ' + v + b'\r\n'
+                if k.lower() == b'connection' and v.lower() == b'close':
                     self.close_connection = True
-                if k.lower() == 'connection' and v.lower() == 'keep-alive':
+                if k.lower() == b'connection' and v.lower() == b'keep-alive':
                     self.close_connection = False
 
         icap_header_str += b'\r\n'
@@ -359,15 +359,15 @@ class BaseICAPRequestHandler(StreamRequestHandler):
 
         command, request_uri, version = words
 
-        if version[:5] != 'ICAP/':
+        if version[:5] != b'ICAP/':
             raise ICAPError(400, "Bad request protocol, only accepting ICAP")
 
-        if command not in ('OPTIONS', 'REQMOD', 'RESPMOD'):
+        if command not in (b'OPTIONS', b'REQMOD', b'RESPMOD'):
             raise ICAPError(501, "command %r is not implemented" % command)
 
         try:
-            base_version_number = version.split('/', 1)[1]
-            version_number = base_version_number.split(".")
+            base_version_number = version.split(b'/', 1)[1]
+            version_number = base_version_number.split(b".")
             # RFC 2145 section 3.1 says there can be only one "." and
             #   - major and minor numbers MUST be treated as
             #      separate integers;
@@ -391,44 +391,44 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         # Examine the headers and look for a Connection directive
         self.headers = self._read_headers()
 
-        conntype = self.headers.get('connection', [''])[0]
-        if conntype.lower() == 'close':
+        conntype = self.headers.get(b'connection', [b''])[0]
+        if conntype.lower() == b'close':
             self.close_connection = True
 
         self.encapsulated = {}
-        if self.command in ['RESPMOD', 'REQMOD']:
-            for enc in self.headers.get('encapsulated', [''])[0].split(','):
+        if self.command in [b'RESPMOD', b'REQMOD']:
+            for enc in self.headers.get(b'encapsulated', [b''])[0].split(b','):
                 # TODO: raise ICAPError if Encapsulated is malformed or empty
-                k, v = enc.strip().split('=')
+                k, v = enc.strip().split(b'=')
                 self.encapsulated[k] = int(v)
 
-        self.preview = self.headers.get('preview', [None])[0]
+        self.preview = self.headers.get(b'preview', [None])[0]
         self.allow = [
-            x.strip() for x in self.headers.get('allow', [''])[0].split(',')
+            x.strip() for x in self.headers.get(b'allow', [b''])[0].split(b',')
         ]
         self.client_ip = self.headers.get(
-            'x-client-ip', 'No X-Client-IP header')[0]
+            b'x-client-ip', b'No X-Client-IP header')[0]
 
-        if self.command == 'REQMOD':
-            if 'req-hdr' in self.encapsulated:
+        if self.command == b'REQMOD':
+            if b'req-hdr' in self.encapsulated:
                 self.enc_req = self._read_request()
                 self.enc_req_headers = self._read_headers()
-            if 'req-body' in self.encapsulated:
+            if b'req-body' in self.encapsulated:
                 self.has_body = True
-        elif self.command == 'RESPMOD':
-            if 'req-hdr' in self.encapsulated:
+        elif self.command == b'RESPMOD':
+            if b'req-hdr' in self.encapsulated:
                 self.enc_req = self._read_request()
                 self.enc_req_headers = self._read_headers()
-            if 'res-hdr' in self.encapsulated:
+            if b'res-hdr' in self.encapsulated:
                 self.enc_res_status = self._read_status()
                 self.enc_res_headers = self._read_headers()
-            if 'res-body' in self.encapsulated:
+            if b'res-body' in self.encapsulated:
                 self.has_body = True
         # Else: OPTIONS. No encapsulation.
 
         # Parse service name
         # TODO: document "url routing"
-        self.servicename = urlparse(self.request_uri)[2].strip('/')
+        self.servicename = urlparse(self.request_uri)[2].strip(b'/')
 
     def handle(self):
         """Handles a connection
@@ -481,7 +481,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
 
             self.parse_request()
 
-            mname = self.servicename + '_' + self.command
+            mname = (self.servicename + b'_' + self.command).decode("utf-8")
             if not hasattr(self, mname):
                 self.log_error("%s not found" % mname)
                 raise ICAPError(404)
@@ -496,7 +496,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             self.log_error("Request timed out: %r", e)
             self.close_connection = 1
         except ICAPError as e:
-            self.send_error(e.code, e.message.encode('utf-8'))
+            self.send_error(e.code, e.message[0])
         #except:
         #    self.send_error(500)
 
@@ -522,7 +522,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         self.enc_res_stats = None
 
         self.set_icap_response(code, message=message)
-        self.set_icap_header('Connection', 'close') # TODO: why?
+        self.set_icap_header(b'Connection', b'close') # TODO: why?
         self.send_headers()
 
     def send_enc_error(self, code, message=None, body='',
@@ -542,9 +542,9 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         self.enc_req = None
 
         self.set_icap_response(200, message=message)
-        self.set_enc_status('HTTP/1.1 %s %s' % (str(code).encode('ascii'), message))
+        self.set_enc_status('HTTP/1.1 %s %s' % (str(code).encode('utf-8'), message))
         self.set_enc_header('Content-Type', contenttype)
-        self.set_enc_header('Content-Length', str(len(body)).encode('ascii'))
+        self.set_enc_header('Content-Length', str(len(body)).encode('utf-8'))
         self.send_headers(has_body=True)
         if len(body) > 0:
             self.write_chunk(body)
@@ -557,7 +557,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         """
 
         self.log_message('"%s" %s %s',
-                         self.requestline, str(code).encode('ascii'), str(size).encode('ascii'))
+                         self.requestline, str(code).encode('utf-8'), str(size).encode('utf-8'))
 
     def log_error(self, format, *args):
         """Log an error.
@@ -633,11 +633,11 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         a 204 preview response is sent. Otherwise a copy of the message
         is returned to the client.
         """
-        if '204' in self.allow or self.preview is not None:
+        if b'204' in self.allow or self.preview is not None:
             # We MUST read everything the client sent us
             if self.has_body:
                 while True:
-                    if self.read_chunk() == '':
+                    if self.read_chunk() == b'':
                         break
             self.set_icap_response(204)
             self.send_headers()
@@ -646,7 +646,8 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             # but it's sure there's no preview
             self.set_icap_response(200)
 
-            self.set_enc_status(' '.join(self.enc_res_status))
+            if self.enc_res_status is not None:
+                self.set_enc_status(b' '.join(self.enc_res_status))
             for h in self.enc_res_headers:
                 for v in self.enc_res_headers[h]:
                     self.set_enc_header(h, v)
@@ -660,5 +661,5 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             while True:
                 chunk = self.read_chunk()
                 self.write_chunk(chunk)
-                if chunk == '':
+                if chunk == b'':
                     break

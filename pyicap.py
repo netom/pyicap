@@ -496,7 +496,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             self.log_error("Request timed out: %r", e)
             self.close_connection = 1
         except ICAPError as e:
-            self.send_error(e.code, e.message.encode('utf-8'))
+            self.send_error(e.code, e.message[0])
         #except:
         #    self.send_error(500)
 
@@ -522,7 +522,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         self.enc_res_stats = None
 
         self.set_icap_response(code, message=message)
-        self.set_icap_header('Connection', 'close') # TODO: why?
+        self.set_icap_header(b'Connection', b'close') # TODO: why?
         self.send_headers()
 
     def send_enc_error(self, code, message=None, body='',

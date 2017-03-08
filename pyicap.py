@@ -209,7 +209,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         When finished writing, an empty chunk with data='' must
         be written.
         """
-        l = bytes(hex(len(data))[2:], 'utf-8')
+        l = hex(len(data))[2:].encode('utf-8')
         self.wfile.write(l + b'\r\n' + data + b'\r\n')
 
     # Alias to match documentation, and also to match naming convention of
@@ -226,7 +226,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         if self.ieof:
             raise ICAPError(500, 'Tried to continue on ieof condition')
 
-        self.wfile.write(bytes('ICAP/1.0 100 Continue\r\n\r\n', 'utf-8'))
+        self.wfile.write(b'ICAP/1.0 100 Continue\r\n\r\n')
 
         self.eob = False
 
@@ -295,16 +295,16 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             enc_body = b'null-body='
 
         if b'ISTag' not in self.icap_headers:
-            self.set_icap_header(b'ISTag', bytes('"{0}"'.format(''.join(map(
+            self.set_icap_header(b'ISTag', ('"{0}"'.format(''.join(map(
                 lambda x: random.choice(string.ascii_letters + string.digits),
                 range(30)
-            ))), 'utf-8'))
+            )))).encode('utf-8'))
 
         if b'Date' not in self.icap_headers:
-            self.set_icap_header(b'Date', bytes(self.date_time_string(), 'utf-8'))
+            self.set_icap_header(b'Date', self.date_time_bytes())
 
         if b'Server' not in self.icap_headers:
-            self.set_icap_header(b'Server', bytes(self.version_string(), 'utf-8'))
+            self.set_icap_header(b'Server', self.version_bytes())
 
         enc_header_str = enc_req_stat
         for k in self.enc_headers:
@@ -593,11 +593,11 @@ class BaseICAPRequestHandler(StreamRequestHandler):
                           self.log_date_time_string(),
                           format % args))
 
-    def version_string(self):
+    def version_bytes(self):
         """Return the server software version string."""
-        return self._server_version + ' ' + self._sys_version
+        return (self._server_version + ' ' + self._sys_version).encode('utf-8')
 
-    def date_time_string(self, timestamp=None):
+    def date_time_bytes(self, timestamp=None):
         """Return the current date and time formatted for a message header."""
         if timestamp is None:
             timestamp = time.time()
@@ -606,7 +606,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
                 self._weekdayname[wd],
                 day, self._monthname[month], year,
                 hh, mm, ss)
-        return s
+        return s.encode('utf-8')
 
     def log_date_time_string(self):
         """Return the current time formatted for logging."""

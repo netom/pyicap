@@ -10,6 +10,9 @@ except ImportError:
     import SocketServer
     socketserver = SocketServer
 
+import sys
+sys.path.append('.')
+
 from pyicap import *
 
 class ThreadingSimpleServer(socketserver.ThreadingMixIn, ICAPServer):

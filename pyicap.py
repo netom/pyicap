@@ -107,7 +107,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         409: (b'Conflict', b'Request conflict.'),
         410: (b'Gone',
               b'URI no longer exists and has been permanently removed.'),
-        411: (b'Length Required', 'Client must specify Content-Length.'),
+        411: (b'Length Required', b'Client must specify Content-Length.'),
         412: (b'Precondition Failed', b'Precondition in headers is false.'),
         413: (b'Request Entity Too Large', b'Entity is too large.'),
         414: (b'Request-URI Too Long', b'URI is too long.'),
@@ -282,6 +282,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         """
         enc_header = None
         enc_req_stat = b''
+        enc_body = b''
         if self.enc_request is not None:
             enc_header = b'req-hdr=0'
             enc_body = b'req-body='

@@ -1,0 +1,16 @@
+sudo: false
+
+language: generic
+
+addons:
+  apt:
+    packages:
+      - squid
+      - nginx
+
+services:
+  - squid
+  - nginx
+
+script:
+  - true

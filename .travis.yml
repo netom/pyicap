@@ -13,4 +13,4 @@ services:
   - nginx
 
 script:
-  - true
+  - ./test.sh

@@ -158,7 +158,7 @@ we will use a line like:
 ```
 icap_service my_service respmod_precache icap://localhost:13440/test
 ```
-If one now sends a request via the Squid proxy the `test_REQMOD(self)` 
+If one now sends a request via the Squid proxy the `test_RESPMOD(self)` 
 method will get invoked.
 
 * Next we have to insert the service

@@ -45,7 +45,7 @@ Python's stock BaseHTTPServer class for the purpose.
 
 It is important to note that ICAP _IS NOT_ an application of HTTP,
 neither a protocol wrapped into it. If a relationship must be stated,
-I's say ICAP is a sibling of HTTP rather it's child.
+I'd say ICAP is a sibling of HTTP rather it's child.
 
 Because of this relationship a HTTP server or client cannot be trivially
 extended (or even monkey-patched) to handle ICAP. This is why I choose

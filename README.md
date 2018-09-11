@@ -40,11 +40,11 @@ this framework was tested with Squid3.
 Design
 ------
 
-The ICAP protocol closely resembles HTTP/1.1, so I choosed to modify
+The ICAP protocol closely resembles HTTP/1.1, so I chose to modify
 Python's stock BaseHTTPServer class for the purpose.
 
 It is important to note that ICAP _IS NOT_ an application of HTTP,
-neither a protocoll wrapped into it. If a relationship must be stated,
+neither a protocol wrapped into it. If a relationship must be stated,
 I's say ICAP is a sibling of HTTP rather it's child.
 
 Because of this relationship a HTTP server or client cannot be trivially
@@ -160,7 +160,7 @@ requets:
 * cont(): Sends an ICAP 100 Continue response to the client. Can be
   used to request the client to continue sending data after a preview.
 * read_chunk(): Reads a chunk from the client. Be aware that this call
-  blocks. If there is no available data on the line, and Connection: 
+  blocks. If there is no available data on the line, and Connection:
   keep-alive is used, it will cause the server to hang. This method
   should only be called if it's sure there will be data available
   eventually. If it returns an empty string, it means that it's the
@@ -189,7 +189,3 @@ requets:
   If sending data with send_headers, the has_body parameter must be set
   to properly indicate the existance or absence of an encapsulated
   message body.
-
-
-
-

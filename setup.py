@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='pyicap',
-    version='1.0b1',
+    version='1.0b2',
     description='A framework for writing ICAP servers',
     author='FÁBIÁN Tamás László',
     author_email='giganetom@gmail.com',

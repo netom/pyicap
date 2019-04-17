@@ -515,7 +515,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         """
 
         if message is None:
-            message = self._response[code][0]
+            message = self._responses[code][0]
         self.log_error("code %d, message %s", code, message)
 
         # No encapsulation

@@ -526,7 +526,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         self.set_icap_header(b'Connection', b'close') # TODO: why?
         self.send_headers()
 
-    def send_enc_error(self, code, message=None, body='',
+    def send_enc_error(self, code, message='', body='',
                        contenttype='text/html'):
         """Send an encapsulated error reply.
 
@@ -542,14 +542,29 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         # No encapsulation
         self.enc_req = None
 
+        # make sure content type is byte string
+        if isinstance(contenttype, str):
+            contenttype = contenttype.encode()
+
+        # make sure content type is byte string
+        if isinstance(body, str):
+            body = body.encode()
+
+        # make sure message type is byte string	
+        if isinstance(message, str):
+            message = message.encode()
+
         self.set_icap_response(200, message=message)
-        self.set_enc_status('HTTP/1.1 %s %s' % (str(code).encode('utf-8'), message))
-        self.set_enc_header('Content-Type', contenttype)
-        self.set_enc_header('Content-Length', str(len(body)).encode('utf-8'))
+        error_response = self._responses[code]
+        self.set_enc_status(b'HTTP/1.1 %s %s' % (str(code).encode('utf-8'), error_response[0]))
+
+        self.set_enc_header(b'Content-Type', contenttype)
+        self.set_enc_header(b'Content-Length', str(len(body)).encode())
         self.send_headers(has_body=True)
         if len(body) > 0:
             self.write_chunk(body)
-        self.write_chunk('')
+            # write empty if there is body, otherwise might result in connection reset
+            self.write_chunk(b'')
 
     def log_request(self, code='-', size='-'):
         """Log an accepted request.

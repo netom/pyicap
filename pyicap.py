@@ -3,6 +3,7 @@
 For the ICAP specification, see RFC 3507
 """
 
+from six import PY3, binary_type, text_type
 import sys
 import time
 import random
@@ -28,6 +29,27 @@ except ImportError:
 
 __version__ = "1.0"
 __all__ = ['ICAPServer', 'BaseICAPRequestHandler', 'ICAPError']
+
+
+def native(s):
+    """
+    Convert :py:class:`bytes` or :py:class:`unicode` to the native
+    :py:class:`str` type, using UTF-8 encoding if conversion is necessary.
+
+    :raise UnicodeError: The input string is not UTF-8 decodeable.
+
+    :raise TypeError: The input is neither :py:class:`bytes` nor
+        :py:class:`unicode`.
+    """
+    if not isinstance(s, (binary_type, text_type)):
+        raise TypeError("%r is neither bytes nor unicode" % s)
+    if PY3:
+        if isinstance(s, binary_type):
+            return s.decode("utf-8")
+    else:
+        if isinstance(s, text_type):
+            return s.encode("utf-8")
+    return s
 
 
 class ICAPError(Exception):
@@ -497,7 +519,8 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             self.log_error("Request timed out: %r", e)
             self.close_connection = 1
         except ICAPError as e:
-            self.send_error(e.code, e.message[0])
+            msg = e.message[0] if isinstance(e.message, tuple) else e.message
+            self.send_error(e.code, msg)
         #except:
         #    self.send_error(500)
 
@@ -619,8 +642,8 @@ class BaseICAPRequestHandler(StreamRequestHandler):
             timestamp = time.time()
         year, month, day, hh, mm, ss, wd, y, z = time.gmtime(timestamp)
         s = "%s, %02d %3s %4d %02d:%02d:%02d GMT" % (
-                self._weekdayname[wd],
-                day, self._monthname[month], year,
+                native(self._weekdayname[wd]),
+                day, native(self._monthname[month]), year,
                 hh, mm, ss)
         return s.encode('utf-8')
 
@@ -629,7 +652,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         now = time.time()
         year, month, day, hh, mm, ss, x, y, z = time.localtime(now)
         s = "%02d/%3s/%04d %02d:%02d:%02d" % (
-                day, self._monthname[month], year, hh, mm, ss)
+                day, native(self._monthname[month]), year, hh, mm, ss)
         return s
 
     def address_string(self):

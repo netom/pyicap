@@ -285,8 +285,13 @@ class BaseICAPRequestHandler(StreamRequestHandler):
 
     def set_icap_response(self, code, message=None):
         """Sets the ICAP response's status line and response code"""
+
+        # make sure message type is byte string
+        if isinstance(message, str):
+            message = message.encode()
+
         self.icap_response = b'ICAP/1.0 ' + str(code).encode('utf-8') + b' ' + \
-            (str.encode(message) if message else self._responses[code][0])
+            (message or self._responses[code][0])
         self.icap_response_code = code
 
     def set_icap_header(self, header, value):
@@ -572,10 +577,6 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         # make sure content type is byte string
         if isinstance(body, str):
             body = body.encode()
-
-        # make sure message type is byte string	
-        if isinstance(message, str):
-            message = message.encode()
 
         self.set_icap_response(200, message=message)
         error_response = self._responses[code]

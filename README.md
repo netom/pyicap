@@ -59,11 +59,11 @@ extending the protocol handler class and starting the server, passing
 your handler to it:
 
 ```python
-#!/bin/env python
+#!/bin/env python3
 # -*- coding: utf8 -*-
 
 import random
-import SocketServer
+import socketserver
 
 from pyicap import *
 
@@ -74,8 +74,8 @@ class ICAPHandler(BaseICAPRequestHandler):
 
     def echo_OPTIONS(self):
         self.set_icap_response(200)
-        self.set_icap_header('Methods', 'RESPMOD')
-        self.set_icap_header('Preview', '0')
+        self.set_icap_header(b'Methods', b'RESPMOD')
+        self.set_icap_header(b'Preview', b'0')
         self.send_headers(False)
 
     def echo_RESPMOD(self):
@@ -88,7 +88,7 @@ try:
     while 1:
         server.handle_request()
 except KeyboardInterrupt:
-    print "Finished"
+    print("Finished")
 
 ```
 

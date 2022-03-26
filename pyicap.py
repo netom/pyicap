@@ -350,7 +350,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
         icap_header_str = b''
         for k in self.icap_headers:
             for v in self.icap_headers[k]:
-                icap_header_str += "{}: {}\r\n".format(k, v).encode()
+                icap_header_str += k + b': ' + v + b'\r\n'
                 if k.lower() == b'connection' and v.lower() == b'close':
                     self.close_connection = True
                 if k.lower() == b'connection' and v.lower() == b'keep-alive':

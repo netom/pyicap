@@ -74,8 +74,8 @@ class ICAPHandler(BaseICAPRequestHandler):
 
     def echo_OPTIONS(self):
         self.set_icap_response(200)
-        self.set_icap_header('Methods', 'RESPMOD')
-        self.set_icap_header('Preview', '0')
+        self.set_icap_header(b'Methods', b'RESPMOD')
+        self.set_icap_header(b'Preview', b'0')
         self.send_headers(False)
 
     def echo_RESPMOD(self):

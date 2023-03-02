@@ -59,11 +59,11 @@ extending the protocol handler class and starting the server, passing
 your handler to it:
 
 ```python
-#!/bin/env python
+#!/bin/env python3
 # -*- coding: utf8 -*-
 
 import random
-import SocketServer
+import socketserver
 
 from pyicap import *
 
@@ -88,7 +88,7 @@ try:
     while 1:
         server.handle_request()
 except KeyboardInterrupt:
-    print "Finished"
+    print("Finished")
 
 ```
 

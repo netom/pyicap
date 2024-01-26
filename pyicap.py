@@ -515,7 +515,7 @@ class BaseICAPRequestHandler(StreamRequestHandler):
                 raise ICAPError(404)
 
             method = getattr(self, mname)
-            if not isinstance(method, collections.Callable):
+            if not callable(method):
                 raise ICAPError(404)
             method()
             self.wfile.flush()
